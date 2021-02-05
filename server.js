@@ -26,6 +26,16 @@ var urlencodedParser = bodyParser.urlencoded({
 	extended: false
 });
 
+app.get("/favicon.ico", function (req, res) {
+	res.sendFile("favicon.ico", {
+		root: path.join(__dirname, 'public'),
+		headers: {
+			'x-timestamp': Date.now(),
+			'x-sent': true
+		}
+	});
+});
+
 app.get("*", function (req, res) {
 	res.send(`<!DOCTYPE html>
 <html>
