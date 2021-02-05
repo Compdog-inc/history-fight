@@ -48,6 +48,27 @@ app.get("*", function (req, res) {
 </html>`);
 });
 
+wss.on('connection', (ws) => {
+	console.log("new connection");
+	ws.isAlive = true;
+
+	ws.on('pong', () => {
+		ws.isAlive = true;
+	});
+
+	ws.on('message', (message) => {
+		console.log("message: " + message);
+	});
+
+	ws.on('close', (e) => {
+		if (e.wasClean) {
+			console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+		} else {
+			console.log("Connection died");
+		}
+	});
+});
+
 client.connect();
 
 server.listen(process.env.PORT || 3000,
