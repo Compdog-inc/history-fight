@@ -54,6 +54,7 @@ wss.on('connection', (ws) => {
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
+		console.log("pong :)");
 	});
 
 	ws.on('message', (message) => {
@@ -75,7 +76,10 @@ server.listen(process.env.PORT || 3000,
 	() => {
 		setInterval(() => {
 			wss.clients.forEach((ws) => {
-				if (!ws.isAlive) return ws.terminate();
+				if (!ws.isAlive) {
+					console.log("dead socket :(");
+					return ws.terminate();
+				}
 				ws.isAlive = false;
 				ws.ping(null, false, true);
 			});
