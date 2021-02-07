@@ -78,7 +78,7 @@ server.listen(process.env.PORT || 3000,
 			wss.clients.forEach((ws) => {
 				if (!ws.isAlive) {
 					console.log("dead socket :(");
-					return ws.terminate();
+					return ws.close();
 				}
 				ws.isAlive = false;
 				ws.ping(null, false, true);
