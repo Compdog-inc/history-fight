@@ -54,11 +54,17 @@ wss.on('connection', (ws) => {
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
-		console.log("pong :)");
 	});
 
 	ws.on('message', (message) => {
-		console.log("message: " + message);
+		try {
+			var eventObject = JSON.parse(message);
+			console.log("event: " + eventObject);
+			eventObject.name = "Rec: " + eventObject.name;
+			ws.send(JSON.stringify(eventObject));
+		} catch (e) {
+			console.error("Error parsing event: " + e);
+        }
 	});
 
 	ws.on('close', (e) => {
@@ -78,7 +84,7 @@ server.listen(process.env.PORT || 3000,
 			wss.clients.forEach((ws) => {
 				if (!ws.isAlive) {
 					console.log("dead socket :(");
-					return ws.close();
+					return ws.terminate();
 				}
 				ws.isAlive = false;
 				ws.ping(null, false, true);
