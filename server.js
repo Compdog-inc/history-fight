@@ -59,9 +59,9 @@ wss.on('connection', (ws) => {
 	ws.on('message', (message) => {
 		try {
 			var eventObject = JSON.parse(message);
-			console.log("event: " + eventObject);
+			console.log("event: " + eventObject.name);
 			eventObject.name = "Rec: " + eventObject.name;
-			ws.send(JSON.stringify(eventObject));
+			sendEvent(eventObject, ws);
 		} catch (e) {
 			console.error("Error parsing event: " + e);
         }
@@ -75,6 +75,12 @@ wss.on('connection', (ws) => {
 		}
 	});
 });
+
+function sendEvent(eventObject, ws) {
+	var str = JSON.stringify(eventObject);
+	console.log("Sending " + str);
+	ws.send(str);
+}
 
 client.connect();
 
