@@ -59,8 +59,7 @@ wss.on('connection', (ws) => {
 	ws.on('message', (message) => {
 		try {
 			var eventObject = JSON.parse(message);
-			console.log("event: " + eventObject.Name);
-			eventObject.Name = "Rec: " + eventObject.Name;
+			eventObject.Name = "echo_" + eventObject.Name;
 			sendEvent(eventObject, ws);
 		} catch (e) {
 			console.error("Error parsing event: " + e);
