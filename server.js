@@ -17,6 +17,12 @@ const client = new Client({
 	}
 });
 
+var teams = [
+	{ Name: "Homyak", CurrentMemberCount: 2, TotalMemberCount: 5 },
+	{ Name: "Barbos TEAM", CurrentMemberCount: 4, TotalMemberCount: 5 },
+	{ Name: "goose", CurrentMemberCount: 0, TotalMemberCount: 5 }
+];
+
 app.use(cors());
 app.set('trust proxy', true);
 app.use(express.static("public"));
@@ -83,12 +89,13 @@ function sendEvent(eventObject, ws) {
 function parseEvent(eventObject, ws) {
 	switch (eventObject.Name) {
 		case "ListTeamsEvent":
-			eventObject.Teams = [
-				{ Name: "Homyak", CurrentMemberCount: 2, TotalMemberCount: 5 },
-				{ Name: "Barbos TEAM", CurrentMemberCount: 4, TotalMemberCount: 5 },
-				{ Name: "goose", CurrentMemberCount: 0, TotalMemberCount: 5 }
-			];
+			eventObject.Teams = teams;
 			sendEvent(eventObject, ws);
+			break;
+		case "AddTeamEvent":
+			var newTeam = { Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: 5 };
+			teams.push(newTeam);
+			sendEvent({ Name: "NewTeamEvent", Team: newTeam }, ws);
 			break;
 	}
 }
