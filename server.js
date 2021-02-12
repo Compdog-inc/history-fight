@@ -4,6 +4,7 @@ const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const { Client } = require('pg');
+const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const WebSocket = require('ws');
 
@@ -16,6 +17,8 @@ const client = new Client({
 		rejectUnauthorized: false
 	}
 });
+
+var clients = [];
 
 var teams = [
 	{ Name: "Homyak", CurrentMemberCount: 2, TotalMemberCount: 5 },
@@ -58,6 +61,8 @@ wss.on('connection', (ws) => {
 	console.log("new connection");
 	ws.isAlive = true;
 
+	clients.push({ client: ws, id: generateId() });
+
 	ws.on('pong', () => {
 		ws.isAlive = true;
 	});
@@ -72,6 +77,7 @@ wss.on('connection', (ws) => {
 	});
 
 	ws.on('close', (e) => {
+		removeClient(ws);
 		if (e.wasClean) {
 			console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
 		} else {
@@ -80,9 +86,39 @@ wss.on('connection', (ws) => {
 	});
 });
 
+function generateId() {
+	return uuidv4();
+}
+
+function getClientById(id) {
+	for (var i = 0; i < clients.length; i++)
+		if (clients[i].id == id)
+			return clients[i].client;
+	return null;
+}
+
+function getIdByClient(ws) {
+	for (var i = 0; i < clients.length; i++)
+		if (clients[i].client == ws)
+			return clients[i].id;
+	return null;
+}
+
+function removeClient(ws) {
+	for (var i = 0; i < clients.length; i++)
+		if (clients[i].client == ws) {
+			clients.splice(i, 1);
+			return;
+		}
+}
+
+function sendToAll(eventObject) {
+	for (var i = 0; i < clients.length; i++)
+		sendEvent(eventObject, clients[i].client);
+}
+
 function sendEvent(eventObject, ws) {
 	var str = JSON.stringify(eventObject);
-	console.log("Sending " + str);
 	ws.send(str);
 }
 
@@ -95,7 +131,7 @@ function parseEvent(eventObject, ws) {
 		case "AddTeamEvent":
 			var newTeam = { Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: 5 };
 			teams.push(newTeam);
-			sendEvent({ Name: "NewTeamEvent", Team: newTeam }, ws);
+			sendToAll({ Name: "NewTeamEvent", Team: newTeam });
 			break;
 	}
 }
