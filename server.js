@@ -59,8 +59,7 @@ wss.on('connection', (ws) => {
 	ws.on('message', (message) => {
 		try {
 			var eventObject = JSON.parse(message);
-			eventObject.Name = "echo_" + eventObject.Name;
-			sendEvent(eventObject, ws);
+			parseEvent(eventObject, ws);
 		} catch (e) {
 			console.error("Error parsing event: " + e);
         }
@@ -79,6 +78,19 @@ function sendEvent(eventObject, ws) {
 	var str = JSON.stringify(eventObject);
 	console.log("Sending " + str);
 	ws.send(str);
+}
+
+function parseEvent(eventObject, ws) {
+	switch (eventObject.Name) {
+		case "ListTeamsEvent":
+			eventObject.Teams = [
+				{ Name: "Homyak", CurrentMemberCount: 2, TotalMemberCount: 5 },
+				{ Name: "Barbos TEAM", CurrentMemberCount: 4, TotalMemberCount: 5 },
+				{ Name: "goose", CurrentMemberCount: 0, TotalMemberCount: 5 }
+			];
+			sendEvent(eventObject, ws);
+			break;
+	}
 }
 
 client.connect();
