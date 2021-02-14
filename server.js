@@ -58,10 +58,13 @@ app.get("*", function (req, res) {
 });
 
 wss.on('connection', (ws) => {
-	console.log("new connection");
 	ws.isAlive = true;
 
-	clients.push({ client: ws, id: generateId() });
+	var id = generateId();
+
+	clients.push({ client: ws, id: id });
+
+	console.log(`New Connection '${id}'`);
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
@@ -120,9 +123,11 @@ function sendToAll(eventObject) {
 function sendEvent(eventObject, ws) {
 	var str = JSON.stringify(eventObject);
 	ws.send(str);
+	console.log("Sent to " + getIdByClient(ws));
 }
 
 function parseEvent(eventObject, ws) {
+	console.log("Got " + eventObject.Name);
 	switch (eventObject.Name) {
 		case "ListTeamsEvent":
 			eventObject.Teams = teams;
@@ -143,7 +148,7 @@ server.listen(process.env.PORT || 3000,
 		setInterval(() => {
 			wss.clients.forEach((ws) => {
 				if (!ws.isAlive) {
-					console.log("dead socket :(");
+					console.log("Dead socket :(");
 					return ws.terminate();
 				}
 				ws.isAlive = false;
