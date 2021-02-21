@@ -59,6 +59,7 @@ app.get("/favicon.ico", function (req, res) {
 });
 
 app.get("/files/:filepath", function (req, res) {
+	console.log("REQUEST");
 	var p = path.join(__dirname, 'public/files/', req.params.filepath);
 	console.log("P: " + p);
 	fs.access(p, fs.F_OK, (err) => {
