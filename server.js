@@ -97,7 +97,8 @@ app.get("*", function (req, res) {
 wss.on('connection', (ws, req) => {
 	var roomCode = req.url.substr(1);
 	if (roomCode != "123456") {
-		ws.close(4000, "Room not found");
+		ws.send("4000");
+		ws.close();
 		return;
     }
 	ws.isAlive = true;
