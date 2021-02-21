@@ -63,23 +63,28 @@ app.get("/files/:filepath", function (req, res) {
 			return;
 		}
 
+		var encoding;
+		var type;
+
 		if (req.params.filepath.endsWith(".gz"))
-			res.set('Content-Encoding', 'gzip');
+			encoding='gzip';
 
 		if (req.params.filepath.endsWith(".br"))
-			res.set('Content-Encoding', 'br');
+			encoding='br';
 
 		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
-			res.set('Content-Type', 'application/wasm');
+			type = 'application/wasm';
 
 		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
-			res.set('Content-Type', 'application/javascript');
+			type = 'application/javascript';
 
 		res.sendFile(req.params.filepath, {
 			root: path.join(__dirname, 'public/files/'),
 			headers: {
 				'x-timestamp': Date.now(),
-				'x-sent': true
+				'x-sent': true,
+				'Content-Encoding': encoding,
+				'Content-Type': type
 			}
 		});
 	});
