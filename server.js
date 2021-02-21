@@ -60,15 +60,12 @@ app.get("/favicon.ico", function (req, res) {
 
 app.get("/files/:filepath", function (req, res) {
 	var path = path.join(__dirname, 'public/files/', req.params.filepath);
+	console.log("P: " + path);
 	fs.access(path, fs.F_OK, (err) => {
 		if (err) {
-			res.status(404).end("404 (Not Found)");
+			res.status(404).send("404 (Not Found)");
 			return;
 		}
-
-		res.sendFile(req.params.filepath, {
-			root: path.join(__dirname, 'public/files/')
-		});
 
 		if (req.params.filepath.endsWith(".gz"))
 			encoding = 'gzip';
@@ -81,6 +78,14 @@ app.get("/files/:filepath", function (req, res) {
 
 		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
 			res.set('Content-Type', 'application/javascript');
+
+		fs.readFile(path, function (err, data) {
+			if (err) {
+				return console.log(err);
+			}
+
+			res.send(data);
+		});
 	});
 });
 
