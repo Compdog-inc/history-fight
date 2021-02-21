@@ -187,8 +187,8 @@ function removeClient(ws, room) {
 }
 
 function sendToAll(eventObject, room) {
-	for (var i = 0; i < clients.length; i++)
-		sendEvent(eventObject, clients[i].client, room);
+	for (var i = 0; i < room.clients.length; i++)
+		sendEvent(eventObject, room.clients[i].client, room);
 }
 
 function sendEvent(eventObject, ws, room) {
