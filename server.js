@@ -63,21 +63,21 @@ app.get("/files/:filepath", function (req, res) {
 			return;
 		}
 
+		res.sendFile(req.params.filepath, {
+			root: path.join(__dirname, 'public/files/')
+		});
+
 		if (req.params.filepath.endsWith(".gz"))
-			encoding='gzip';
+			encoding = 'gzip';
 
 		if (req.params.filepath.endsWith(".br"))
-			encoding='br';
+			encoding = 'br';
 
 		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
 			res.set('Content-Type', 'application/wasm');
 
 		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
 			res.set('Content-Type', 'application/javascript');
-
-		res.sendFile(req.params.filepath, {
-			root: path.join(__dirname, 'public/files/')
-		});
 	});
 });
 
