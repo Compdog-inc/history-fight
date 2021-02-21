@@ -22,11 +22,7 @@ const client = new Client({
 
 var clients = [];
 
-var teams = [
-	{ Name: "Homyak", CurrentMemberCount: 2, TotalMemberCount: 5 },
-	{ Name: "Barbos TEAM", CurrentMemberCount: 4, TotalMemberCount: 5 },
-	{ Name: "goose", CurrentMemberCount: 0, TotalMemberCount: 5 }
-];
+var teams = [];
 
 app.use(cors());
 app.set('trust proxy', true);
