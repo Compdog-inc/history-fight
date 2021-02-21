@@ -81,6 +81,8 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 				return console.log(err);
 			}
 
+			console.log("DATA: " + data);
+
 			res.send(data);
 		});
 	});
