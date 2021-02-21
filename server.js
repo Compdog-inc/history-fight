@@ -70,10 +70,10 @@ app.get("/files/:filepath", function (req, res) {
 			encoding='br';
 
 		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
-			res.contentType("application/wasm");
+			res.set('Content-Type', 'application/wasm');
 
 		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
-			res.contentType("application/javascript");
+			res.set('Content-Type', 'application/javascript');
 
 		res.sendFile(req.params.filepath, {
 			root: path.join(__dirname, 'public/files/')
