@@ -95,13 +95,18 @@ app.get("*", function (req, res) {
 });
 
 wss.on('connection', (ws, req) => {
+	var roomCode = req.url.substr(1);
+	if (roomCode != "123456") {
+		ws.close(0, "Room not found");
+		return;
+    }
 	ws.isAlive = true;
 
 	var id = generateId();
 
 	clients.push({ client: ws, id: id });
 
-	console.log(`New Connection '${id}' '${req}'`);
+	console.log(`New Connection '${id}' room '${roomCode}'`);
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
