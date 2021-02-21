@@ -97,7 +97,7 @@ app.get("*", function (req, res) {
 wss.on('connection', (ws, req) => {
 	var roomCode = req.url.substr(1);
 	if (roomCode != "123456") {
-		ws.send("4000");
+		ws.send("4001");
 		ws.close();
 		return;
     }
@@ -108,6 +108,8 @@ wss.on('connection', (ws, req) => {
 	clients.push({ client: ws, id: id });
 
 	console.log(`New Connection '${id}' room '${roomCode}'`);
+
+	ws.send("4000");
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
