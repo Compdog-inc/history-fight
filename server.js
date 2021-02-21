@@ -58,9 +58,9 @@ app.get("/favicon.ico", function (req, res) {
 	});
 });
 
-app.get("/files/:filepath", function (req, res) {
+app.get("/files/:filefolder/:filename", function (req, res) {
 	console.log("REQUEST");
-	var p = path.join(__dirname, 'public/files/', req.params.filepath);
+	var p = path.join(__dirname, 'public/files/', req.params.filefolder,req.params.filename);
 	console.log("P: " + p);
 	fs.access(p, fs.F_OK, (err) => {
 		if (err) {
@@ -68,16 +68,16 @@ app.get("/files/:filepath", function (req, res) {
 			return;
 		}
 
-		if (req.params.filepath.endsWith(".gz"))
+		if (req.params.filename.endsWith(".gz"))
 			encoding = 'gzip';
 
-		if (req.params.filepath.endsWith(".br"))
+		if (req.params.filename.endsWith(".br"))
 			encoding = 'br';
 
-		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
+		if (endsWith(req.params.filename, [".wasm", ".wasm.gz", ".wasm.br"]))
 			res.set('Content-Type', 'application/wasm');
 
-		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
+		if (endsWith(req.params.filename, [".js", ".js.gz", ".js.br"]))
 			res.set('Content-Type', 'application/javascript');
 
 		fs.readFile(p, function (err, data) {
