@@ -65,10 +65,10 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 		}
 
 		if (req.params.filename.endsWith(".gz"))
-			encoding = 'gzip';
+			res.set('Content-Encoding', 'gzip');
 
 		if (req.params.filename.endsWith(".br"))
-			encoding = 'br';
+			res.set('Content-Encoding', 'br')
 
 		if (endsWith(req.params.filename, [".wasm", ".wasm.gz", ".wasm.br"]))
 			res.set('Content-Type', 'application/wasm');
@@ -80,8 +80,6 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 			if (err) {
 				return console.log(err);
 			}
-
-			console.log("DATA: " + data);
 
 			res.end(data);
 		});
