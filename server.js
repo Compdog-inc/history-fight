@@ -171,7 +171,7 @@ function parseEvent(eventObject, ws) {
 			sendEvent(eventObject, ws);
 			break;
 		case "AddTeamEvent":
-			var newTeam = { Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: 5 };
+			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: 5 };
 			teams.push(newTeam);
 			sendToAll({ Name: "NewTeamEvent", Team: newTeam });
 			break;
