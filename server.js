@@ -81,6 +81,7 @@ app.get("/files/:filepath", function (req, res) {
 		res.sendFile(req.params.filepath, {
 			root: path.join(__dirname, 'public/files/'),
 			headers: {
+				'x-homhomh': 'barbos',
 				'x-timestamp': Date.now(),
 				'x-sent': true,
 				'Content-Encoding': encoding,
