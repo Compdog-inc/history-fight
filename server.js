@@ -82,11 +82,6 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 	});
 });
 
-app.get("/:code", function (req, res) {
-	console.log("IP: " + req.ip + ", CODE: " + req.params.code);
-	res.send("OK");
-});
-
 app.get("*", function (req, res) {
 	res.send(`<!DOCTYPE html>
 <html>
@@ -99,14 +94,14 @@ app.get("*", function (req, res) {
 </html>`);
 });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
 	ws.isAlive = true;
 
 	var id = generateId();
 
 	clients.push({ client: ws, id: id });
 
-	console.log(`New Connection '${id}'`);
+	console.log(`New Connection '${id}' '${req}'`);
 
 	ws.on('pong', () => {
 		ws.isAlive = true;
