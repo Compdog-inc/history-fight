@@ -83,7 +83,7 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 
 			console.log("DATA: " + data);
 
-			res.send(data);
+			res.end(data);
 		});
 	});
 });
