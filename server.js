@@ -38,6 +38,7 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 function endsWith(str, endings) {
+	console.log("Checking: " + str);
 	for (var i = 0; i < endings.length; i++) {
 		if (str.endsWith(endings[i])) {
 			console.log(str + ", ends with " + ending[i]);
