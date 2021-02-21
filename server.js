@@ -82,6 +82,11 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 	});
 });
 
+app.get("/:code", function (req, res) {
+	console.log("IP: " + req.ip + ", CODE: " + req.params.code);
+	res.send("OK");
+});
+
 app.get("*", function (req, res) {
 	res.send(`<!DOCTYPE html>
 <html>
