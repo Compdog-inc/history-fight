@@ -1,3 +1,11 @@
+process.on("uncaughtException", (e) => {
+	console.log("Error: " + e);
+});
+
+process.on("unhandledRejection", (r) => {
+	console.log("Rejection: " + r);
+});
+
 const express = require('express');
 const app = express();
 const cors = require('cors');
