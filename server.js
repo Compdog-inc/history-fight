@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const app = express();
 const cors = require('cors');
 const axios = require('axios');
@@ -7,7 +7,8 @@ const { Client } = require('pg');
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const WebSocket = require('ws');
-const fs = require('fs')
+const fs = require('fs');
+const path = require('path');
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -36,6 +37,14 @@ var urlencodedParser = bodyParser.urlencoded({
 	extended: false
 });
 
+function endsWith(str, endings) {
+	for (var i = 0; i < endings.length; i++) {
+		if (str.endsWith(endings[i]))
+			return true;
+    }
+	return false;
+}
+
 app.get("/favicon.ico", function (req, res) {
 	res.sendFile("favicon.ico", {
 		root: path.join(__dirname, 'public'),
@@ -54,8 +63,20 @@ app.get("/files/:filepath", function (req, res) {
 			return;
 		}
 
+		if (req.params.filepath.endsWith(".gz"))
+			res.set('Content-Encoding', 'gzip');
+
+		if (req.params.filepath.endsWith(".br"))
+			res.set('Content-Encoding', 'br');
+
+		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
+			res.set('Content-Type', 'application/wasm');
+
+		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
+			res.set('Content-Type', 'application/javascript');
+
 		res.sendFile(req.params.filepath, {
-			root: path,
+			root: path.join(__dirname, 'public/files/'),
 			headers: {
 				'x-timestamp': Date.now(),
 				'x-sent': true
