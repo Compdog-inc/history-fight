@@ -7,6 +7,7 @@ const { Client } = require('pg');
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const WebSocket = require('ws');
+const fs = require('fs')
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -42,6 +43,24 @@ app.get("/favicon.ico", function (req, res) {
 			'x-timestamp': Date.now(),
 			'x-sent': true
 		}
+	});
+});
+
+app.get("/files/:filepath", function (req, res) {
+	var path = path.join(__dirname, 'public/files/', req.params.filepath);
+	fs.access(path, fs.F_OK, (err) => {
+		if (err) {
+			res.status(404).send("404 (Not Found)");
+			return;
+		}
+
+		res.sendFile(req.params.filepath, {
+			root: path,
+			headers: {
+				'x-timestamp': Date.now(),
+				'x-sent': true
+			}
+		});
 	});
 });
 
