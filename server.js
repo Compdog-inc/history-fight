@@ -20,9 +20,24 @@ const client = new Client({
 	}
 });
 
-var clients = [];
-
-var teams = [];
+var rooms = [{
+	code: "123456",
+	teams: [],
+	clients: [],
+	settings: {
+		maxPlayers: 5,
+		maxTeams:-1
+	}
+},
+	{
+		code: "654321",
+		teams: [],
+		clients: [],
+		settings: {
+			maxPlayers: 3,
+			maxTeams: -1
+		}
+	}];
 
 app.use(cors());
 app.set('trust proxy', true);
@@ -96,21 +111,22 @@ app.get("*", function (req, res) {
 
 wss.on('connection', (ws, req) => {
 	var roomCode = req.url.substr(1);
-	if (roomCode != "123456") {
+	var room = getRoomByCode(roomCode);
+	if (room == null) {
 		ws.on('message', () => {
 			ws.close();
 		});
 
 		ws.send("4001");
 		return;
-    }
+	}
 	ws.isAlive = true;
 
 	var id = generateId();
 
-	clients.push({ client: ws, id: id });
+	room.clients.push({ client: ws, id: id });
 
-	console.log(`New Connection '${id}' room '${roomCode}'`);
+	console.log(`New Connection '${id}' room '${room.code}'`);
 
 	ws.send("4000");
 
@@ -121,14 +137,14 @@ wss.on('connection', (ws, req) => {
 	ws.on('message', (message) => {
 		try {
 			var eventObject = JSON.parse(message);
-			parseEvent(eventObject, ws);
+			parseEvent(eventObject, ws, room);
 		} catch (e) {
 			console.error("Error parsing event: " + e);
         }
 	});
 
 	ws.on('close', (e) => {
-		removeClient(ws);
+		removeClient(ws, room);
 		if (e.wasClean) {
 			console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
 		} else {
@@ -141,50 +157,57 @@ function generateId() {
 	return uuidv4();
 }
 
-function getClientById(id) {
-	for (var i = 0; i < clients.length; i++)
-		if (clients[i].id == id)
-			return clients[i].client;
+function getRoomByCode(code) {
+	for (var i = 0; i < rooms.length; i++)
+		if (rooms[i].code == code)
+			return rooms[i];
 	return null;
 }
 
-function getIdByClient(ws) {
-	for (var i = 0; i < clients.length; i++)
-		if (clients[i].client == ws)
-			return clients[i].id;
+function getClientById(id, room) {
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].id == id)
+			return room.clients[i].client;
 	return null;
 }
 
-function removeClient(ws) {
-	for (var i = 0; i < clients.length; i++)
-		if (clients[i].client == ws) {
-			clients.splice(i, 1);
+function getIdByClient(ws, room) {
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].client == ws)
+			return room.clients[i].id;
+	return null;
+}
+
+function removeClient(ws, room) {
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].client == ws) {
+			room.clients.splice(i, 1);
 			return;
 		}
 }
 
-function sendToAll(eventObject) {
+function sendToAll(eventObject, room) {
 	for (var i = 0; i < clients.length; i++)
-		sendEvent(eventObject, clients[i].client);
+		sendEvent(eventObject, clients[i].client, room);
 }
 
-function sendEvent(eventObject, ws) {
+function sendEvent(eventObject, ws, room) {
 	var str = JSON.stringify(eventObject);
 	ws.send(str);
-	console.log("Sent to " + getIdByClient(ws));
+	console.log("Sent to " + getIdByClient(ws, room));
 }
 
-function parseEvent(eventObject, ws) {
+function parseEvent(eventObject, ws, room) {
 	console.log("Got " + eventObject.Name);
 	switch (eventObject.Name) {
 		case "ListTeamsEvent":
-			eventObject.Teams = teams;
-			sendEvent(eventObject, ws);
+			eventObject.Teams = room.teams;
+			sendEvent(eventObject, ws, room);
 			break;
 		case "AddTeamEvent":
-			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: 5 };
-			teams.push(newTeam);
-			sendToAll({ Name: "NewTeamEvent", Team: newTeam });
+			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers };
+			room.teams.push(newTeam);
+			sendToAll({ Name: "NewTeamEvent", Team: newTeam }, room);
 			break;
 	}
 }
