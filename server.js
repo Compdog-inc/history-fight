@@ -59,12 +59,9 @@ app.get("/files/:filepath", function (req, res) {
 	var path = path.join(__dirname, 'public/files/', req.params.filepath);
 	fs.access(path, fs.F_OK, (err) => {
 		if (err) {
-			res.status(404).send("404 (Not Found)");
+			res.status(404).end("404 (Not Found)");
 			return;
 		}
-
-		var encoding;
-		var type;
 
 		if (req.params.filepath.endsWith(".gz"))
 			encoding='gzip';
@@ -73,20 +70,13 @@ app.get("/files/:filepath", function (req, res) {
 			encoding='br';
 
 		if (endsWith(req.params.filepath, [".wasm", ".wasm.gz", ".wasm.br"]))
-			type = 'application/wasm';
+			res.contentType("application/wasm");
 
 		if (endsWith(req.params.filepath, [".js", ".js.gz", ".js.br"]))
-			type = 'application/javascript';
+			res.contentType("application/javascript");
 
 		res.sendFile(req.params.filepath, {
-			root: path.join(__dirname, 'public/files/'),
-			headers: {
-				'x-homhomh': 'barbos',
-				'x-timestamp': Date.now(),
-				'x-sent': true,
-				'Content-Encoding': encoding,
-				'Content-Type': type
-			}
+			root: path.join(__dirname, 'public/files/')
 		});
 	});
 });
