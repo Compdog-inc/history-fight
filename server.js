@@ -30,7 +30,6 @@ var teams = [
 
 app.use(cors());
 app.set('trust proxy', true);
-app.use(express.static("public"));
 
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({
