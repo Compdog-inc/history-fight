@@ -37,10 +37,9 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 function endsWith(str, endings) {
-	console.log("Checking: " + str);
 	for (var i = 0; i < endings.length; i++) {
 		if (str.endsWith(endings[i])) {
-			console.log(str + ", ends with " + ending[i]);
+			console.log(str + ", ends with " + endings[i]);
 			return true;
 		}
     }
@@ -58,9 +57,7 @@ app.get("/favicon.ico", function (req, res) {
 });
 
 app.get("/files/:filefolder/:filename", function (req, res) {
-	console.log("REQUEST");
 	var p = path.join(__dirname, 'public/files/', req.params.filefolder,req.params.filename);
-	console.log("P: " + p);
 	fs.access(p, fs.F_OK, (err) => {
 		if (err) {
 			res.status(404).send("404 (Not Found)");
