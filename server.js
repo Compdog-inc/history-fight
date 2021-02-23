@@ -189,7 +189,7 @@ function getIdByClient(ws, room) {
 function removeClientInTeam(ws, room, team) {
 	var id = getIdByClient(ws, room);
 	if (team.Players.includes(id))
-		team.Players.remove(id);
+		team.Players.removeObject(id);
 }
 
 function getTeamByClient(ws, room) {
