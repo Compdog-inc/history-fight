@@ -186,7 +186,25 @@ function getIdByClient(ws, room) {
 	return null;
 }
 
+function removeClientInTeam(ws, room, team) {
+	var id = getIdByClient(ws, room);
+	if (team.Players.includes(id))
+		team.Players.remove(id);
+}
+
+function getTeamByClient(ws, room) {
+	for (var i = 0; i < room.teams.length; i++)
+		for (var j = 0; j < room.teams[i].Players.length; j++)
+			if (getClientById(room.teams[i].Players[j], room) == ws)
+				return room.teams[i];
+	return null;
+}
+
 function removeClient(ws, room) {
+	var clientTeam = getTeamByClient(ws, room);
+	removeClientInTeam(ws, room, clientTeam);
+	console.log(JSON.stringify(clientTeam));
+
 	for (var i = 0; i < room.clients.length; i++)
 		if (room.clients[i].client == ws) {
 			room.clients.splice(i, 1);
@@ -197,6 +215,11 @@ function removeClient(ws, room) {
 function sendToAll(eventObject, room) {
 	for (var i = 0; i < room.clients.length; i++)
 		sendEvent(eventObject, room.clients[i].client, room);
+}
+
+function sendToTeam(eventObject, room, team) {
+	for (var i = 0; i < team.Players.length; i++)
+		sendEvent(eventObject, getClientById(team.Players[i], room), room);
 }
 
 function sendEvent(eventObject, ws, room) {
@@ -213,9 +236,10 @@ function parseEvent(eventObject, ws, room) {
 			sendEvent(eventObject, ws, room);
 			break;
 		case "AddTeamEvent":
-			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers };
+			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws)] };
 			room.teams.push(newTeam);
 			sendToAll({ Name: "NewTeamEvent", Team: newTeam }, room);
+			console.log(JSON.stringify(newTeam));
 			break;
 	}
 }
