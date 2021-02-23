@@ -186,23 +186,25 @@ function getIdByClient(ws, room) {
 	return null;
 }
 
-function removeClientInTeam(ws, room, team) {
-	var id = getIdByClient(ws, room);
+function removeClientIdInTeam(id, team) {
 	if (team.Players.includes(id))
 		team.Players.removeObject(id);
 }
 
-function getTeamByClient(ws, room) {
+function getTeamByClientId(id, room) {
 	for (var i = 0; i < room.teams.length; i++)
 		for (var j = 0; j < room.teams[i].Players.length; j++)
-			if (getClientById(room.teams[i].Players[j], room) == ws)
+			if (room.teams[i].Players[j] == id)
 				return room.teams[i];
 	return null;
 }
 
 function removeClient(ws, room) {
-	var clientTeam = getTeamByClient(ws, room);
-	removeClientInTeam(ws, room, clientTeam);
+	var clientId = getIdByClient(ws, room);
+	var clientTeam = getTeamByClientId(clientId, room);
+	console.log("T: " + clientTeam);
+	console.log("T: " + clientTeam.Players);
+	removeClientIdInTeam(clientId, clientTeam);
 	console.log(JSON.stringify(clientTeam));
 
 	for (var i = 0; i < room.clients.length; i++)
