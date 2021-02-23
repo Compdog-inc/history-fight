@@ -203,8 +203,8 @@ function removeClient(ws, room) {
 	var clientId = getIdByClient(ws, room);
 	var clientTeam = getTeamByClientId(clientId, room);
 	if (clientTeam != null) {
-		console.log("T: " + clientTeam);
-		console.log("T: " + clientTeam.Players);
+		console.log("T: " + JSON.stringify(clientTeam));
+		console.log("TP: " + clientTeam.Players[0]);
 		removeClientIdInTeam(clientId, clientTeam);
 		console.log(JSON.stringify(clientTeam));
 	}
