@@ -236,7 +236,7 @@ function parseEvent(eventObject, ws, room) {
 			sendEvent(eventObject, ws, room);
 			break;
 		case "AddTeamEvent":
-			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws)] };
+			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 			room.teams.push(newTeam);
 			sendToAll({ Name: "NewTeamEvent", Team: newTeam }, room);
 			console.log(JSON.stringify(newTeam));
