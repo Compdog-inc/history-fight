@@ -107,8 +107,11 @@ wss.on('connection', (ws, req) => {
 
 		ws.on('close', (e) => {
 			var room = getRoomByServer(ws);
-			if (room != null)
+			if (room != null) {
+				for (var i = 0; i < room.clients.length;i++)
+					removeClient(room.clients[i],room);
 				rooms = rooms.filter(item => item !== room);
+			}
 			if (e.wasClean) {
 				console.log(`Server connection closed cleanly, code=${event.code} reason=${event.reason}`);
 			} else {
