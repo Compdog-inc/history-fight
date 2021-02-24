@@ -280,6 +280,7 @@ function parseEvent(eventObject, ws, room) {
 				settings: eventObject.settings
 			});
 			eventObject.code = rmCode;
+			sendEvent(eventObject, ws, room);
 			break;
 	}
 }
