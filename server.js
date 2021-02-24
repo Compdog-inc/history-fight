@@ -107,6 +107,7 @@ wss.on('connection', (ws, req) => {
 
 		ws.on('close', (e) => {
 			var room = getRoomByServer(ws);
+			console.log("ROOM: " + room);
 			if (room != null) {
 				for (var i = 0; i < room.clients.length; i++)
 					removeClient(room.clients[i].client,room);
