@@ -225,8 +225,6 @@ function getRoomByServer(server) {
 }
 
 function removeClientIdInTeam(id, team) {
-	if (room == null)
-		return;
 	if (team.Players.includes(id))
 		team.Players = team.Players.filter(item => item !== id);
 }
