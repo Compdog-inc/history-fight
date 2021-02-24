@@ -116,7 +116,7 @@ wss.on('connection', (ws, req) => {
 			}
 		});
 	} else {
-		var room = getRoomByCode(roomCode);
+		var room = getRoomByCode(infoUrl);
 		if (room == null) {
 			ws.on('message', () => {
 				ws.close();
