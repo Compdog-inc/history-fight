@@ -1,5 +1,5 @@
 process.on("uncaughtException", (e) => {
-	console.log("Error: " + e);
+	console.log("Error: " + e.toString());
 });
 
 process.on("unhandledRejection", (r) => {
