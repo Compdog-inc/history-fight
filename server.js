@@ -28,24 +28,7 @@ const client = new Client({
 	}
 });
 
-var rooms = [{
-	code: "123456",
-	teams: [],
-	clients: [],
-	settings: {
-		maxPlayers: 5,
-		maxTeams:-1
-	}
-},
-	{
-		code: "654321",
-		teams: [],
-		clients: [],
-		settings: {
-			maxPlayers: 3,
-			maxTeams: -1
-		}
-	}];
+var rooms = [];
 
 app.use(cors());
 app.set('trust proxy', true);
@@ -118,29 +101,54 @@ app.get("*", function (req, res) {
 });
 
 wss.on('connection', (ws, req) => {
-	var roomCode = req.url.substr(1);
-	var room = getRoomByCode(roomCode);
-	if (room == null) {
-		ws.on('message', () => {
-			ws.close();
-		});
+	var infoUrl = req.url.substr(1);
+	if (infoUrl == "server") {
+		console.log("New Connection (server) waiting for more information");
 
-		ws.send("4001");
-		return;
+		ws.on('close', (e) => {
+			var room = getRoomByServer(ws);
+			if (room != null)
+				rooms = rooms.filter(item => item !== room);
+			if (e.wasClean) {
+				console.log(`Server connection closed cleanly, code=${event.code} reason=${event.reason}`);
+			} else {
+				console.log("Server connection died");
+			}
+		});
+	} else {
+		var room = getRoomByCode(roomCode);
+		if (room == null) {
+			ws.on('message', () => {
+				ws.close();
+			});
+
+			ws.send("4001");
+			return;
+		}
+
+		var id = generateId();
+
+		room.clients.push({ client: ws, id: id });
+
+		console.log(`New Connection '${id}' room '${room.code}'`);
+
+		ws.send("4000");
+
+		ws.on('close', (e) => {
+			removeClient(ws, room);
+			if (e.wasClean) {
+				console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+			} else {
+				console.log("Connection died");
+			}
+		});
 	}
 	ws.isAlive = true;
-
-	var id = generateId();
-
-	room.clients.push({ client: ws, id: id });
-
-	console.log(`New Connection '${id}' room '${room.code}'`);
-
-	ws.send("4000");
-
 	ws.on('pong', () => {
 		ws.isAlive = true;
 	});
+
+
 
 	ws.on('message', (message) => {
 		try {
@@ -148,21 +156,35 @@ wss.on('connection', (ws, req) => {
 			parseEvent(eventObject, ws, room);
 		} catch (e) {
 			console.error("Error parsing event: " + e);
-        }
-	});
-
-	ws.on('close', (e) => {
-		removeClient(ws, room);
-		if (e.wasClean) {
-			console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-		} else {
-			console.log("Connection died");
 		}
 	});
 });
 
 function generateId() {
 	return uuidv4();
+}
+
+function generateNum(n) {
+	var add = 1, max = 12 - add;
+
+	if (n > max) {
+		return generate(max) + generate(n - max);
+	}
+
+	max = Math.pow(10, n + add);
+	var min = max / 10;
+	var number = Math.floor(Math.random() * (max - min + 1)) + min;
+
+	return ("" + number).substring(add);
+}
+
+function generateRoomCode() {
+	var code = generateNum(6);
+
+	if (getRoomByCode(code) != null)
+		code = generateRoomCode();
+
+	return code;
 }
 
 function getRoomByCode(code) {
@@ -186,6 +208,14 @@ function getIdByClient(ws, room) {
 	return null;
 }
 
+function getRoomByServer(server) {
+	for (var i = 0; i < rooms.length; i++) {
+		if (rooms[i].server == server)
+			return rooms[i];
+	}
+	return null;
+}
+
 function removeClientIdInTeam(id, team) {
 	if (team.Players.includes(id))
 		team.Players = team.Players.filter(item => item !== id);
@@ -202,10 +232,8 @@ function getTeamByClientId(id, room) {
 function removeClient(ws, room) {
 	var clientId = getIdByClient(ws, room);
 	var clientTeam = getTeamByClientId(clientId, room);
-	if (clientTeam != null) {
+	if (clientTeam != null)
 		removeClientIdInTeam(clientId, clientTeam);
-		console.log(JSON.stringify(clientTeam));
-	}
 
 	for (var i = 0; i < room.clients.length; i++)
 		if (room.clients[i].client == ws) {
@@ -241,7 +269,17 @@ function parseEvent(eventObject, ws, room) {
 			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 			room.teams.push(newTeam);
 			sendToAll({ Name: "NewTeamEvent", Team: newTeam }, room);
-			console.log(JSON.stringify(newTeam));
+			break;
+		case "NewRoomEvent":
+			var rmCode = generateRoomCode();
+			rooms.push({
+				code: rmCode,
+				teams: [],
+				clients: [],
+				server: ws,
+				settings: eventObject.settings
+			});
+			eventObject.code = rmCode;
 			break;
 	}
 }
