@@ -195,6 +195,8 @@ function getRoomByCode(code) {
 }
 
 function getClientById(id, room) {
+	if (room == null)
+		return null;
 	for (var i = 0; i < room.clients.length; i++)
 		if (room.clients[i].id == id)
 			return room.clients[i].client;
@@ -202,6 +204,8 @@ function getClientById(id, room) {
 }
 
 function getIdByClient(ws, room) {
+	if (room == null)
+		return null;
 	for (var i = 0; i < room.clients.length; i++)
 		if (room.clients[i].client == ws)
 			return room.clients[i].id;
@@ -217,11 +221,15 @@ function getRoomByServer(server) {
 }
 
 function removeClientIdInTeam(id, team) {
+	if (room == null)
+		return;
 	if (team.Players.includes(id))
 		team.Players = team.Players.filter(item => item !== id);
 }
 
 function getTeamByClientId(id, room) {
+	if (room == null)
+		return null;
 	for (var i = 0; i < room.teams.length; i++)
 		for (var j = 0; j < room.teams[i].Players.length; j++)
 			if (room.teams[i].Players[j] == id)
@@ -230,6 +238,8 @@ function getTeamByClientId(id, room) {
 }
 
 function removeClient(ws, room) {
+	if (room == null)
+		return;
 	var clientId = getIdByClient(ws, room);
 	var clientTeam = getTeamByClientId(clientId, room);
 	if (clientTeam != null)
@@ -243,6 +253,8 @@ function removeClient(ws, room) {
 }
 
 function sendToAll(eventObject, room) {
+	if (room == null)
+		return;
 	for (var i = 0; i < room.clients.length; i++)
 		sendEvent(eventObject, room.clients[i].client, room);
 }
