@@ -260,6 +260,12 @@ function sendToAll(eventObject, room) {
 		sendEvent(eventObject, room.clients[i].client, room);
 }
 
+function sendToServer(eventObject, room) {
+	if (room == null)
+		return;
+	sendEvent(eventObject, room.server, room);
+}
+
 function sendToTeam(eventObject, room, team) {
 	for (var i = 0; i < team.Players.length; i++)
 		sendEvent(eventObject, getClientById(team.Players[i], room), room);
@@ -281,7 +287,9 @@ function parseEvent(eventObject, ws, room) {
 		case "AddTeamEvent":
 			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 			room.teams.push(newTeam);
-			sendToAll({ Name: "NewTeamEvent", Team: newTeam }, room);
+			var ev = { Name: "NewTeamEvent", Team: newTeam };
+			sendToAll(ev, room);
+			sendToServer(ev, room);
 			break;
 		case "NewRoomEvent":
 			var rmCode = generateRoomCode();
