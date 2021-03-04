@@ -253,6 +253,32 @@ function removeClient(ws, room) {
 		}
 }
 
+function terminateClient(id, room) {
+	if (room == null)
+		return;
+	var client = getClientById(id, room);
+	if (client != null) {
+		client.close();
+
+		for (var i = 0; i < room.clients.length; i++)
+			if (room.clients[i].id == id) {
+				room.clients.splice(i, 1);
+				return;
+			}
+    }
+}
+
+function removeTeam(uuid, room) {
+	for (var i = 0; i < room.teams.length; i++) {
+		if (rooms.teams[i].Uuid === uuid) {
+			for (var j = 0; j < rooms.teams[i].Players.length; j++)
+				terminateClient(rooms.teams[i].Players[j], room);
+			rooms.teams.splice(i, 1);
+			break;
+        }
+    }
+}
+
 function sendToAll(eventObject, room) {
 	if (room == null)
 		return;
@@ -302,6 +328,11 @@ function parseEvent(eventObject, ws, room) {
 			});
 			eventObject.code = rmCode;
 			sendEvent(eventObject, ws, room);
+			break;
+		case "RemoveTeamEvent":
+			removeTeam(eventObject.Uuid, room);
+			sendToAll(eventObject, room);
+			sendToServer(eventObject, room);
 			break;
 	}
 }
