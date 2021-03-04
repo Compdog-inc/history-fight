@@ -277,10 +277,10 @@ function terminateClient(id, room) {
 
 function removeTeam(uuid, room) {
 	for (var i = 0; i < room.teams.length; i++) {
-		if (rooms.teams[i].Uuid === uuid) {
-			for (var j = 0; j < rooms.teams[i].Players.length; j++)
-				terminateClient(rooms.teams[i].Players[j], room);
-			rooms.teams.splice(i, 1);
+		if (room.teams[i].Uuid === uuid) {
+			for (var j = 0; j < room.teams[i].Players.length; j++)
+				terminateClient(room.teams[i].Players[j], room);
+			room.teams.splice(i, 1);
 			break;
         }
     }
