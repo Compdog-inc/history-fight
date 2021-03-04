@@ -158,7 +158,7 @@ wss.on('connection', (ws, req) => {
 			var eventObject = JSON.parse(message);
 			parseEvent(eventObject, ws, room);
 		} catch (e) {
-			console.error("Error parsing event: " + e);
+			console.error("Error parsing event: " + e.stack);
 		}
 	});
 });
