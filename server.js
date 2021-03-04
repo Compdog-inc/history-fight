@@ -118,6 +118,15 @@ wss.on('connection', (ws, req) => {
 				console.log("Server connection died");
 			}
 		});
+
+		ws.once('message', (message) => {
+			try {
+				var eventObject = JSON.parse(message);
+				parseEvent(eventObject, ws, room);
+			} catch (e) {
+				console.error("Error parsing event: " + e.stack);
+			}
+		});
 	} else {
 		var room = getRoomByCode(infoUrl);
 		if (room == null) {
@@ -145,21 +154,19 @@ wss.on('connection', (ws, req) => {
 				console.log("Connection died");
 			}
 		});
+
+		ws.on('message', (message) => {
+			try {
+				var eventObject = JSON.parse(message);
+				parseEvent(eventObject, ws, room);
+			} catch (e) {
+				console.error("Error parsing event: " + e.stack);
+			}
+		});
 	}
 	ws.isAlive = true;
 	ws.on('pong', () => {
 		ws.isAlive = true;
-	});
-
-
-
-	ws.on('message', (message) => {
-		try {
-			var eventObject = JSON.parse(message);
-			parseEvent(eventObject, ws, room);
-		} catch (e) {
-			console.error("Error parsing event: " + e.stack);
-		}
 	});
 });
 
@@ -326,6 +333,14 @@ function parseEvent(eventObject, ws, room) {
 				server: ws,
 				settings: eventObject.settings
 			};
+			ws.on('message', (message) => {
+				try {
+					var eventObject = JSON.parse(message);
+					parseEvent(eventObject, ws, room);
+				} catch (e) {
+					console.error("Error parsing event: " + e.stack);
+				}
+			});
 			rooms.push(room);
 			eventObject.code = rmCode;
 			sendEvent(eventObject, ws, room);
