@@ -319,13 +319,14 @@ function parseEvent(eventObject, ws, room) {
 			break;
 		case "NewRoomEvent":
 			var rmCode = generateRoomCode();
-			rooms.push({
+			room = {
 				code: rmCode,
 				teams: [],
 				clients: [],
 				server: ws,
 				settings: eventObject.settings
-			});
+			};
+			rooms.push(room);
 			eventObject.code = rmCode;
 			sendEvent(eventObject, ws, room);
 			break;
