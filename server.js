@@ -240,8 +240,17 @@ function getTeamByClientId(id, room) {
 		return null;
 	for (var i = 0; i < room.teams.length; i++)
 		for (var j = 0; j < room.teams[i].Players.length; j++)
-			if (room.teams[i].Players[j] == id)
+			if (room.teams[i].Players[j] === id)
 				return room.teams[i];
+	return null;
+}
+
+function getTeamById(id, room) {
+	if (room == null)
+		return null;
+	for (var i = 0; i < room.teams.length; i++)
+		if (room.teams[i].Uuid === id)
+			return room.teams[i];
 	return null;
 }
 
@@ -250,14 +259,20 @@ function removeClient(ws, room) {
 		return;
 	var clientId = getIdByClient(ws, room);
 	var clientTeam = getTeamByClientId(clientId, room);
-	if (clientTeam != null)
+	if (clientTeam != null) {
 		removeClientIdInTeam(clientId, clientTeam);
 
-	for (var i = 0; i < room.clients.length; i++)
-		if (room.clients[i].client == ws) {
-			room.clients.splice(i, 1);
-			return;
-		}
+		for (var i = 0; i < room.clients.length; i++)
+			if (room.clients[i].client == ws) {
+				room.clients.splice(i, 1);
+				break;
+			}
+
+		clientTeam.CurrentMemberCount--;
+		var ev = { Name: "UpdateTeamEvent", Team: clientTeam };
+		sendToAll(ev, room);
+		sendToServer(ev, room);
+	}
 }
 
 function terminateClient(id, room) {
@@ -349,6 +364,16 @@ function parseEvent(eventObject, ws, room) {
 			removeTeam(eventObject.Uuid, room);
 			sendToAll(eventObject, room);
 			sendToServer(eventObject, room);
+			break;
+		case "JoinTeamEvent":
+			var team = getTeamById(eventObject.Uuid, room);
+			if (team != null) {
+				team.Players.push(getIdByClient(ws, room));
+				team.CurrentMemberCount++;
+				var ev = { Name: "UpdateTeamEvent", Team: team };
+				sendToAll(ev, room);
+				sendToServer(ev, room);
+            }
 			break;
 	}
 }
