@@ -21,6 +21,7 @@ const path = require('path');
 const INT_RESPONSE_OK = "4000";            // When joining a existing room
 const INT_RESPONSE_NOT_FOUND = "4001";     // When trying to join a non-existing room
 const INT_RESPONSE_INVALID = "4002";       // When sending a command that is invalid at the current time
+const INT_RESPONSE_STARTED = "4003";       // When trying to join an already started game
 const INT_RESPONSE_ECHO = "0";             // Debug response
 
 const CLOSE_REASON_UNKNOWN = 0;
@@ -139,13 +140,20 @@ wss.on('connection', (ws, req) => {
 	} else {
 		var room = getRoomByCode(infoUrl);
 		if (room == null) {
-			ws.on('message', () => {
+			ws.once('message', () => {
 				ws.close();
 			});
 
 			ws.send(INT_RESPONSE_NOT_FOUND);
 			return;
-		}
+		} else if (room.started) {
+			ws.once('message', () => {
+				ws.close();
+			});
+
+			ws.send(INT_RESPONSE_STARTED);
+			return;
+        }
 
 		var id = generateId();
 
