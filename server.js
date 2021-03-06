@@ -18,15 +18,16 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 
-const INT_RESPONSE_OK = "4000";            // When joining a existing room
-const INT_RESPONSE_NOT_FOUND = "4001";     // When trying to join a non-existing room
-const INT_RESPONSE_INVALID = "4002";       // When sending a command that is invalid at the current time
-const INT_RESPONSE_STARTED = "4003";       // When trying to join an already started game
-const INT_RESPONSE_ECHO = "0";             // Debug response
+const INT_RESPONSE_OK				= "4000";	// When joining a existing room
+const INT_RESPONSE_NOT_FOUND		= "4001";	// When trying to join a non-existing room
+const INT_RESPONSE_INVALID			= "4002";	// When sending a command that is invalid at the current time
+const INT_RESPONSE_STARTED			= "4003";	// When trying to join an already started game
+const INT_RESPONSE_INTERNAL_ERROR	= "4004";	// When command caused an internal server error
+const INT_RESPONSE_ECHO				= "0";		// Debug response
 
-const CLOSE_REASON_UNKNOWN = 0;
-const CLOSE_REASON_TEAM_REMOVED = 1;
-const CLOSE_REASON_GAME_STARTED = 2;
+const CLOSE_REASON_UNKNOWN			= 0;
+const CLOSE_REASON_TEAM_REMOVED		= 1;
+const CLOSE_REASON_GAME_STARTED		= 2;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -135,6 +136,7 @@ wss.on('connection', (ws, req) => {
 				parseEvent(eventObject, ws, room);
 			} catch (e) {
 				console.error("Error parsing event: " + e.stack);
+				ws.send(INT_RESPONSE_INTERNAL_ERROR);
 			}
 		});
 	} else {
@@ -181,6 +183,7 @@ wss.on('connection', (ws, req) => {
 				parseEvent(eventObject, ws, room);
 			} catch (e) {
 				console.error("Error parsing event: " + e.stack);
+				ws.send(INT_RESPONSE_INTERNAL_ERROR);
 			}
 		});
 	}
@@ -429,6 +432,7 @@ function parseEvent(eventObject, ws, room) {
 					parseEvent(eventObject, ws, room);
 				} catch (e) {
 					console.error("Error parsing event: " + e.stack);
+					ws.send(INT_RESPONSE_INTERNAL_ERROR);
 				}
 			});
 			rooms.push(room);
@@ -461,6 +465,7 @@ function parseEvent(eventObject, ws, room) {
 				room.started = true;
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
+				sendToAll(eventObject, room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
