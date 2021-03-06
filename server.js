@@ -379,7 +379,7 @@ function parseEvent(eventObject, ws, room) {
 			break;
 		case "AddTeamEvent":
 			var player = getPlayerByClient(ws, room);
-			if (player != null && !player.inTeam) {
+			if (player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
 				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 				room.teams.push(newTeam);
