@@ -345,7 +345,7 @@ function terminateClientRaw(player, room, reason) {
 		player.client.close();
 
 	for (var i = 0; i < room.clients.length; i++)
-		if (room.clients[i].id == id) {
+		if (room.clients[i] == player) {
 			room.clients.splice(i, 1);
 			return;
 		}
