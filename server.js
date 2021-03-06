@@ -23,6 +23,10 @@ const INT_RESPONSE_NOT_FOUND = "4001";     // When trying to join a non-existing
 const INT_RESPONSE_INVALID = "4002";       // When sending a command that is invalid at the current time
 const INT_RESPONSE_ECHO = "0";             // Debug response
 
+const CLOSE_REASON_UNKNOWN = 0;
+const CLOSE_REASON_TEAM_REMOVED = 1;
+const CLOSE_REASON_GAME_STARTED = 2;
+
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -145,7 +149,8 @@ wss.on('connection', (ws, req) => {
 
 		var id = generateId();
 
-		room.clients.push({ client: ws, id: id, inTeam: false });
+		var client = { client: ws, id: id, inTeam: false, shouldClose: false };
+		room.clients.push(client);
 
 		console.log(`New Connection '${id}' room '${room.code}'`);
 
@@ -162,6 +167,8 @@ wss.on('connection', (ws, req) => {
 
 		ws.on('message', (message) => {
 			try {
+				if (client.shouldClose)
+					return ws.close();
 				var eventObject = JSON.parse(message);
 				parseEvent(eventObject, ws, room);
 			} catch (e) {
@@ -316,26 +323,31 @@ function removeClient(ws, room) {
 	}
 }
 
-function terminateClient(id, room) {
-	if (room == null)
-		return;
-	var client = getClientById(id, room);
-	if (client != null) {
-		client.close();
+function terminateClient(id, room, reason) {
+	terminateClientRaw(getPlayerById(id, room), room, reason);
+}
 
-		for (var i = 0; i < room.clients.length; i++)
-			if (room.clients[i].id == id) {
-				room.clients.splice(i, 1);
-				return;
-			}
-    }
+function terminateClientRaw(player, room, reason) {
+	if (room == null || player == null)
+		return;
+	player.shouldClose = true;
+	if (reason)
+		sendEvent({ Name: "CloseConnectionEvent", Reason: reason }, player.client, room);
+	else
+		player.client.close();
+
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].id == id) {
+			room.clients.splice(i, 1);
+			return;
+		}
 }
 
 function removeTeam(uuid, room) {
 	for (var i = 0; i < room.teams.length; i++) {
 		if (room.teams[i].Uuid === uuid) {
 			for (var j = 0; j < room.teams[i].Players.length; j++)
-				terminateClient(room.teams[i].Players[j], room);
+				terminateClient(room.teams[i].Players[j], room, CLOSE_REASON_TEAM_REMOVED);
 			room.teams.splice(i, 1);
 			break;
         }
@@ -367,7 +379,11 @@ function sendToTeam(eventObject, room, team) {
 function sendEvent(eventObject, ws, room) {
 	var str = JSON.stringify(eventObject);
 	ws.send(str);
-	console.log("Sent to " + getIdByClient(ws, room));
+	var id = getIdByClient(ws, room);
+	if (id == null)
+		console.log("Sent to server (null)");
+	else
+		console.log("Sent to " + id);
 }
 
 function parseEvent(eventObject, ws, room) {
@@ -435,6 +451,8 @@ function parseEvent(eventObject, ws, room) {
 		case "GameStartEvent":
 			if (!room.started && IsRoomValid(room)) {
 				room.started = true;
+				for (var i = 0; i < room.clients.length; i++)
+					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
