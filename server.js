@@ -402,6 +402,7 @@ function parseEvent(eventObject, ws, room) {
 	switch (eventObject.Name) {
 		case "ListTeamsEvent":
 			eventObject.Teams = room.teams;
+			eventObject.MaxTeams = room.settings.maxTeams;
 			sendEvent(eventObject, ws, room);
 			break;
 		case "AddTeamEvent":
@@ -410,7 +411,7 @@ function parseEvent(eventObject, ws, room) {
 				player.inTeam = true;
 				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 				room.teams.push(newTeam);
-				var ev = { Name: "NewTeamEvent", Team: newTeam };
+				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
 				sendToServer(ev, room);
 			} else
@@ -452,7 +453,7 @@ function parseEvent(eventObject, ws, room) {
 				if (team != null && team.CurrentMemberCount < team.TotalMemberCount) {
 					team.Players.push(getIdByClient(ws, room));
 					team.CurrentMemberCount++;
-					var ev = { Name: "UpdateTeamEvent", Team: team };
+					var ev = { Name: "UpdateTeamEvent", Team: team, MaxTeams: room.settings.maxTeams };
 					sendToAll(ev, room);
 					sendToServer(ev, room);
 				} else 
