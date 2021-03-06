@@ -18,6 +18,11 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 
+const INT_RESPONSE_OK = "4000";            // When joining a existing room
+const INT_RESPONSE_NOT_FOUND = "4001";     // When trying to join a non-existing room
+const INT_RESPONSE_INVALID = "4002";       // When sending a command that is invalid at the current time
+const INT_RESPONSE_ECHO = "0";             // Debug response
+
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -134,17 +139,17 @@ wss.on('connection', (ws, req) => {
 				ws.close();
 			});
 
-			ws.send("4001");
+			ws.send(INT_RESPONSE_NOT_FOUND);
 			return;
 		}
 
 		var id = generateId();
 
-		room.clients.push({ client: ws, id: id });
+		room.clients.push({ client: ws, id: id, inTeam: false });
 
 		console.log(`New Connection '${id}' room '${room.code}'`);
 
-		ws.send("4000");
+		ws.send(INT_RESPONSE_OK);
 
 		ws.on('close', (e) => {
 			removeClient(ws, room);
@@ -199,7 +204,7 @@ function generateRoomCode() {
 
 function getRoomByCode(code) {
 	for (var i = 0; i < rooms.length; i++)
-		if (rooms[i].code == code)
+		if (rooms[i].code === code)
 			return rooms[i];
 	return null;
 }
@@ -208,7 +213,7 @@ function getClientById(id, room) {
 	if (room == null)
 		return null;
 	for (var i = 0; i < room.clients.length; i++)
-		if (room.clients[i].id == id)
+		if (room.clients[i].id === id)
 			return room.clients[i].client;
 	return null;
 }
@@ -217,8 +222,44 @@ function getIdByClient(ws, room) {
 	if (room == null)
 		return null;
 	for (var i = 0; i < room.clients.length; i++)
-		if (room.clients[i].client == ws)
+		if (room.clients[i].client === ws)
 			return room.clients[i].id;
+	return null;
+}
+
+function getPlayerById(id, room) {
+	if (room == null)
+		return null;
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].id === id)
+			return room.clients[i];
+	return null;
+}
+
+function getPlayerByClient(ws, room) {
+	if (room == null)
+		return null;
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].client === ws)
+			return room.clients[i];
+	return null;
+}
+
+function getPlayerIndexById(id, room) {
+	if (room == null)
+		return null;
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].id === id)
+			return i;
+	return null;
+}
+
+function getPlayerIndexByClient(ws, room) {
+	if (room == null)
+		return null;
+	for (var i = 0; i < room.clients.length; i++)
+		if (room.clients[i].client === ws)
+			return i;
 	return null;
 }
 
@@ -301,6 +342,10 @@ function removeTeam(uuid, room) {
     }
 }
 
+function IsRoomValid(room) {
+	return room.teams.length > 0 && room.teams.length <= room.settings.maxTeams;
+}
+
 function sendToAll(eventObject, room) {
 	if (room == null)
 		return;
@@ -333,11 +378,16 @@ function parseEvent(eventObject, ws, room) {
 			sendEvent(eventObject, ws, room);
 			break;
 		case "AddTeamEvent":
-			var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
-			room.teams.push(newTeam);
-			var ev = { Name: "NewTeamEvent", Team: newTeam };
-			sendToAll(ev, room);
-			sendToServer(ev, room);
+			var player = getPlayerByClient(ws, room);
+			if (player != null && !player.inTeam) {
+				player.inTeam = true;
+				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
+				room.teams.push(newTeam);
+				var ev = { Name: "NewTeamEvent", Team: newTeam };
+				sendToAll(ev, room);
+				sendToServer(ev, room);
+			} else
+				ws.send(INT_RESPONSE_INVALID);
 			break;
 		case "NewRoomEvent":
 			var rmCode = generateRoomCode();
@@ -346,6 +396,7 @@ function parseEvent(eventObject, ws, room) {
 				teams: [],
 				clients: [],
 				server: ws,
+				started:false,
 				settings: eventObject.settings
 			};
 			ws.on('message', (message) => {
@@ -366,14 +417,26 @@ function parseEvent(eventObject, ws, room) {
 			sendToServer(eventObject, room);
 			break;
 		case "JoinTeamEvent":
-			var team = getTeamById(eventObject.Uuid, room);
-			if (team != null) {
-				team.Players.push(getIdByClient(ws, room));
-				team.CurrentMemberCount++;
-				var ev = { Name: "UpdateTeamEvent", Team: team };
-				sendToAll(ev, room);
-				sendToServer(ev, room);
-            }
+			var player = getPlayerByClient(ws, room);
+			if (player != null && !player.inTeam) {
+				player.inTeam = true;
+				var team = getTeamById(eventObject.Uuid, room);
+				if (team != null && team.CurrentMemberCount < team.TotalMemberCount) {
+					team.Players.push(getIdByClient(ws, room));
+					team.CurrentMemberCount++;
+					var ev = { Name: "UpdateTeamEvent", Team: team };
+					sendToAll(ev, room);
+					sendToServer(ev, room);
+				} else 
+					ws.send(INT_RESPONSE_INVALID);
+			} else 
+				ws.send(INT_RESPONSE_INVALID);
+			break;
+		case "GameStartEvent":
+			if (!room.started && IsRoomValid(room)) {
+				room.started = true;
+			} else
+				ws.send(INT_RESPONSE_INVALID);
 			break;
 	}
 }
