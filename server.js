@@ -89,6 +89,9 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 		if (endsWith(req.params.filename, [".js", ".js.gz", ".js.br"]))
 			res.set('Content-Type', 'application/javascript');
 
+		if (req.params.filename.endsWith(".jpg"))
+			res.set('Content-Type', 'image/jpeg');
+
 		fs.readFile(p, function (err, data) {
 			if (err) {
 				return console.log(err);
