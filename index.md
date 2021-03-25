@@ -1,1 +1,1 @@
-[Public Files](public)
+[Public Files](public/files)
