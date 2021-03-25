@@ -1,5 +1,5 @@
 theme: jekyll-theme-cayman
 title: History Fight
 description: History Fight is a game where you fight.
-site.github.is_project_page: false
-site.show_downloads: false
+site.github.is_project_page: "false"
+site.show_downloads: "false"
