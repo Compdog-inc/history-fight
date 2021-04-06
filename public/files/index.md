@@ -1,8 +1,7 @@
 # Audio Files
-- [8-bitDetective.mp3](audio/8-bitDetective.mp3)
-- [click1.ogg](audio/click1.ogg)
-- [click2.ogg](audio/click2.ogg)
-- [click3.ogg](audio/click3.ogg)
+- [click1.wav](audio/click1.wav)
+- [click2.wav](audio/click2.wav)
+- [click3.wav](audio/click3.wav)
 
 # Game Build
 - [Build.data.br](game/Build.data.br)
