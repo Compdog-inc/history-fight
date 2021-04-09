@@ -1,2 +1,3 @@
 unknown: unknown
 debug.test: Test
+uipanel.title: Выберите Команду
