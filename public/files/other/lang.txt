@@ -1,3 +1,20 @@
 unknown: unknown
 debug.test: Test
 uipanel.title: Выберите Команду
+netresp.notfound: Игра не найдена
+netresp.started: Игра уже началась
+game.attackchoose: Выберите команду для атаки:
+game.attackinfo: Атакована команда {0}!\nБыло нанесено {1} урона!
+gameresp.correct: <color=green>Вы ответили правильно!</color>
+gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
+game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>RANK {1}</color>
+game.teamhealth: {0} HP
+closereason.unknown: Что-то произошло :(
+closereason.teamremoved: Вашу команду удалили
+closereason.gamestarted: Вы не выбрали команду, а игра уже началась
+game.waitingforquestion: Ждём конца таймера на вопрос...
+game.waitingforvotes: Ждём конца голосования...
+loading.downloaditem: Загружаю <color=#40acde>'{0}'</color>... 
+loading.downloadlang: Загружаю языковой файл... 
+setup.title1: Введите Код:
+setup.title2: Введите Кот:
