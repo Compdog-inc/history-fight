@@ -8,8 +8,8 @@ netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
 game.attackchoose: Выберите команду для атаки:
 game.attackchoose.funny: Кого хомячить?
-game.attackinfo: Атакована команда {0}!\nБыло нанесено {1} урона!
-game.attackinfo.funny: Схомячена команда {0}!\nБыло нанесено {1} урона!
+game.attackinfo: Атакована команда {0}!%n%Было нанесено {1} урона!
+game.attackinfo.funny: Схомячена команда {0}!%n%Было нанесено {1} урона!
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
