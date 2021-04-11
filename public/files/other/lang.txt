@@ -32,3 +32,7 @@ setup.title1: Введите Код:
 setup.title2: Введите Кот:
 setup.title1.funny: Пароль:
 setup.title2.funny: Паром?
+msgbox.leave.title: Точно?
+msgbox.leave.text: Ты уверен, что хочешь выйти из игры?%n%Ты потеряешь весь свой прогресс и подведёшь своих друзей!%n%Так что не советую...
+msgbox.btn.yes: Да
+msgbox.btn.no: Нет
