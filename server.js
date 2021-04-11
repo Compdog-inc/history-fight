@@ -124,6 +124,8 @@ wss.on('connection', (ws, req) => {
 			if (room != null) {
 				if (room.currentQuestion != null && room.currentQuestionTimeout != null)
 					clearTimeout(room.currentQuestionTimeout);
+				if (room.currentVoteTimeout != null)
+					clearTimeout(room.currentVoteTimeout);
 				for (var i = 0; i < room.clients.length; i++)
 					room.clients[i].client.close();
 				rooms = rooms.filter(item => item !== room);
@@ -417,22 +419,44 @@ function sendNewQuestion(room) {
 }
 
 function questionTimeUp(room) {
+	var correctPlayers = [];
 	for (var i = 0; i < room.clients.length; i++) {
 		var client = room.clients[i];
 		var timeSpent = -1;
 		if (client.questionAnsweredTime > 0) {
 			timeSpent = Math.floor((client.questionAnsweredTime - room.currentQuestion.timeStart) / 1000);
-			console.log("Client '" + client.id + "' answered in " + timeSpent + " seconds");
-		} else {
-			console.log("Client '" + client.id + "' didn't answer.");
-        }
+		}
+		if (client.questionAnsweredCorrect)
+			correctPlayers.push(client);
 		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect };
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
-		client.questionAnsweredCorrect = false;
-    }
+	}
+
 	room.currentQuestionTimeout = null;
 	room.currentQuestion = null;
+
+	var liteTeams = [];
+	for (var i = 0; i < room.teams.length; i++) liteTeams.push({ Uuid: room.teams[i].Uuid, Name: room.teams[i].Name });
+
+	var voteTeamEvent = { Name: "VoteTeamEvent", Teams: liteTeams, TimeLeft: 20};
+	for (var i = 0; i < correctPlayers.length; i++) {
+		sendEvent(voteTeamEvent, correctPlayers[i].client, room);
+	}
+	room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000);
+}
+
+function voteTimeUp(room) {
+	var currentMaxVotedTeam = null;
+	for (var i = 0; i < room.teams.length; i++) {
+		if (currentMaxVotedTeam == null || room.teams[i].CurrentVotes > currentMaxVotedTeam.CurrentVotes)
+			currentMaxVotedTeam = room.teams[i];
+	}
+	if (currentMaxVotedTeam != null) {
+		sendToAll({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, SentInfo: true }, room);
+	}
+	for (var i = 0; i < room.teams.length; i++) room.teams[i].CurrentVotes = 0;
+	room.currentVoteTimeout = null;
 }
 
 function parseEvent(eventObject, ws, room) {
@@ -447,7 +471,7 @@ function parseEvent(eventObject, ws, room) {
 			var player = getPlayerByClient(ws, room);
 			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
-				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
+				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], CurrentVotes: 0 };
 				room.teams.push(newTeam);
 				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
@@ -465,6 +489,7 @@ function parseEvent(eventObject, ws, room) {
 				started: false,
 				currentQuestion: null,
 				currentQuestionTimeout: null,
+				currentVoteTimeout: null,
 				settings: eventObject.settings
 			};
 			ws.on('message', (message) => {
@@ -520,6 +545,19 @@ function parseEvent(eventObject, ws, room) {
 				if (player.questionAnsweredTime <= 0) {
 					player.questionAnsweredTime = Date.now();
 					player.questionAnsweredCorrect = eventObject.Answer === room.currentQuestion.answer;
+				} else
+					ws.send(INT_RESPONSE_INVALID);
+			} else
+				ws.send(INT_RESPONSE_INVALID);
+			break;
+		case "VoteTeamEvent":
+			if (room.started) {
+				var player = getPlayerByClient(ws, room);
+				if (player.questionAnsweredCorrect && eventObject.SelectedTeam) {
+					var team = getTeamById(eventObject.SelectedTeam, room);
+					if (team)
+						team.CurrentVotes++;
+					player.questionAnsweredCorrect = false;
 				} else
 					ws.send(INT_RESPONSE_INVALID);
 			} else
