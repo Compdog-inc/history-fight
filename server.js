@@ -122,6 +122,8 @@ wss.on('connection', (ws, req) => {
 		ws.on('close', (e) => {
 			var room = getRoomByServer(ws);
 			if (room != null) {
+				if (room.currentQuestion != null && room.currentQuestionTimeout != null)
+					clearTimeout(room.currentQuestionTimeout);
 				for (var i = 0; i < room.clients.length; i++)
 					room.clients[i].client.close();
 				rooms = rooms.filter(item => item !== room);
@@ -162,7 +164,7 @@ wss.on('connection', (ws, req) => {
 
 		var id = generateId();
 
-		var client = { client: ws, id: id, inTeam: false, shouldClose: false };
+		var client = { client: ws, id: id, inTeam: false, shouldClose: false, questionAnsweredTime: 0, questionAnsweredCorrect: false };
 		room.clients.push(client);
 
 		console.log(`New Connection '${id}' room '${room.code}'`);
@@ -401,7 +403,36 @@ function sendEvent(eventObject, ws, room) {
 }
 
 function sendNewQuestion(room) {
-	sendToAll({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 20, Question: "When Hom Hom?", Answers: ["Today", "Yesterday", "1934", "1345"] }, room);
+	var question = "When Hom hom?";
+	var answer = 1;
+	var timeGiven = 20;
+	room.currentQuestion = {
+		question: question,
+		answer: answer,
+		timeGiven: timeGiven,
+		timeStart: Date.now()
+	};
+	sendToAll({ Name: "QuestionEvent", SentInfo: false, TimeLeft: timeGiven, Question: question, Answers: ["Today", "Yesterday", "1934", "1345"] }, room);
+	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), timeGiven);
+}
+
+function questionTimeUp(room) {
+	for (var i = 0; i < room.clients.length; i++) {
+		var client = room.clients[i];
+		var timeSpent = -1;
+		if (client.questionAnsweredTime > 0) {
+			timeSpent = Math.floor((client.questionAnsweredTime - room.currentQuestion.timeStart) / 1000);
+			console.log("Client '" + client.id + "' answered in " + timeSpent + " seconds");
+		} else {
+			console.log("Client '" + client.id + "' didn't answer.");
+        }
+		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect };
+		sendEvent(event, client.client, room);
+		client.questionAnsweredTime = 0;
+		client.questionAnsweredCorrect = false;
+    }
+	room.currentQuestionTimeout = null;
+	room.currentQuestion = null;
 }
 
 function parseEvent(eventObject, ws, room) {
@@ -414,7 +445,7 @@ function parseEvent(eventObject, ws, room) {
 			break;
 		case "AddTeamEvent":
 			var player = getPlayerByClient(ws, room);
-			if (player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
+			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
 				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)] };
 				room.teams.push(newTeam);
@@ -431,7 +462,9 @@ function parseEvent(eventObject, ws, room) {
 				teams: [],
 				clients: [],
 				server: ws,
-				started:false,
+				started: false,
+				currentQuestion: null,
+				currentQuestionTimeout: null,
 				settings: eventObject.settings
 			};
 			ws.on('message', (message) => {
@@ -448,13 +481,16 @@ function parseEvent(eventObject, ws, room) {
 			sendEvent(eventObject, ws, room);
 			break;
 		case "RemoveTeamEvent":
-			removeTeam(eventObject.Uuid, room);
-			sendToAll(eventObject, room);
-			sendToServer(eventObject, room);
+			if (!room.started) {
+				removeTeam(eventObject.Uuid, room);
+				sendToAll(eventObject, room);
+				sendToServer(eventObject, room);
+			} else
+				ws.send(INT_RESPONSE_INVALID);
 			break;
 		case "JoinTeamEvent":
 			var player = getPlayerByClient(ws, room);
-			if (player != null && !player.inTeam) {
+			if (!room.started && player != null && !player.inTeam) {
 				player.inTeam = true;
 				var team = getTeamById(eventObject.Uuid, room);
 				if (team != null && team.CurrentMemberCount < team.TotalMemberCount) {
@@ -475,6 +511,17 @@ function parseEvent(eventObject, ws, room) {
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				sendToAll(eventObject, room);
 				sendNewQuestion(room);
+			} else
+				ws.send(INT_RESPONSE_INVALID);
+			break;
+		case "QuestionEvent":
+			if (room.started && room.currentQuestion != null) {
+				var player = getPlayerByClient(ws, room);
+				if (player.questionAnsweredTime > 0) {
+					player.questionAnsweredTime = Date.now();
+					player.questionAnsweredCorrect = eventObject.answer === room.currentQuestion.answer;
+				} else
+					ws.send(INT_RESPONSE_INVALID);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
