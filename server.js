@@ -413,7 +413,7 @@ function sendNewQuestion(room) {
 		timeStart: Date.now()
 	};
 	sendToAll({ Name: "QuestionEvent", SentInfo: false, TimeLeft: timeGiven, Question: question, Answers: ["Today", "Yesterday", "1934", "1345"] }, room);
-	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), timeGiven);
+	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), timeGiven * 1000);
 }
 
 function questionTimeUp(room) {
