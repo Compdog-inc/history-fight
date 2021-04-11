@@ -435,7 +435,7 @@ function questionTimeUp(room) {
 		}
 		if (client.questionAnsweredCorrect)
 			correctPlayers.push(client);
-		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect };
+		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
 	}
@@ -443,10 +443,10 @@ function questionTimeUp(room) {
 	room.currentQuestionTimeout = null;
 	room.currentQuestion = null;
 
-	room.currentVoteTimeout = setTimeout(() => initVoting(room), 3000);
+	room.currentVoteTimeout = setTimeout(() => initVoting(room, correctPlayers), 3000);
 }
 
-function initVoting(room) {
+function initVoting(room, correctPlayers) {
 	var liteTeams = [];
 	for (var i = 0; i < room.teams.length; i++)
 		if (!room.teams[i].IsDead) liteTeams.push({ Uuid: room.teams[i].Uuid, Name: room.teams[i].Name });
