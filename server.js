@@ -519,6 +519,7 @@ function parseEvent(eventObject, ws, room) {
 				var player = getPlayerByClient(ws, room);
 				if (player.questionAnsweredTime <= 0) {
 					player.questionAnsweredTime = Date.now();
+					console.log("ANSW: " + eventObject.answer);
 					player.questionAnsweredCorrect = eventObject.answer === room.currentQuestion.answer;
 				} else
 					ws.send(INT_RESPONSE_INVALID);
