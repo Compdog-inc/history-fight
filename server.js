@@ -517,7 +517,7 @@ function parseEvent(eventObject, ws, room) {
 		case "QuestionEvent":
 			if (room.started && room.currentQuestion != null) {
 				var player = getPlayerByClient(ws, room);
-				if (player.questionAnsweredTime > 0) {
+				if (player.questionAnsweredTime <= 0) {
 					player.questionAnsweredTime = Date.now();
 					player.questionAnsweredCorrect = eventObject.answer === room.currentQuestion.answer;
 				} else
