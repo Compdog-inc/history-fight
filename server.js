@@ -451,7 +451,8 @@ function questionTimeUp(room) {
 	for (var i = 0; i < correctPlayers.length; i++) {
 		sendEvent(voteTeamEvent, correctPlayers[i].client, room);
 	}
-	room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000);
+
+	room.currentVoteTimeout = setTimeout(() => room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000), 3000);
 }
 
 function voteTimeUp(room) {
@@ -465,7 +466,7 @@ function voteTimeUp(room) {
 		currentMaxVotedTeam.Health -= 1;
 		if (currentMaxVotedTeam.Health <= 0) {
 			currentMaxVotedTeam.Health = 0;
-			//currentMaxVotedTeam.IsDead = true;
+			currentMaxVotedTeam.IsDead = true;
         }
 		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, SentInfo: true }, room);
 		sendToAllAlive({ Name: "TeamStatusChangeEvent", teamInfo: { greenValue: currentMaxVotedTeam.Health / 100, limeValue: currentMaxVotedTeam.Health / 100, orangeValue: prevHealth / 100, xp: 0, rank: 0 } }, room);
@@ -474,7 +475,8 @@ function voteTimeUp(room) {
     }
 	for (var i = 0; i < room.teams.length; i++) room.teams[i].CurrentVotes = 0;
 	room.currentVoteTimeout = null;
-	sendNewQuestion(room);
+
+	setTimeout(() => sendNewQuestion(room), 3000);
 }
 
 function parseEvent(eventObject, ws, room) {
