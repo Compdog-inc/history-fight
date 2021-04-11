@@ -400,6 +400,10 @@ function sendEvent(eventObject, ws, room) {
 		console.log("Sent to " + id);
 }
 
+function sendNewQuestion(room) {
+	sendToAll({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 20, Question: "When Hom Hom?", Answers: ["Today", "Yesterday", "1934", "1345"] }, room);
+}
+
 function parseEvent(eventObject, ws, room) {
 	console.log("Got " + eventObject.Name);
 	switch (eventObject.Name) {
@@ -470,7 +474,7 @@ function parseEvent(eventObject, ws, room) {
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				sendToAll(eventObject, room);
-				sendToAll({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 5, Question: "When Hom Hom?", Answers: ["Today", "Yesterday", "1934", "1345"]}, room);
+				sendNewQuestion(room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
