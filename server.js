@@ -443,16 +443,20 @@ function questionTimeUp(room) {
 	room.currentQuestionTimeout = null;
 	room.currentQuestion = null;
 
+	room.currentVoteTimeout = setTimeout(() => initVoting(room), 3000);
+}
+
+function initVoting(room) {
 	var liteTeams = [];
 	for (var i = 0; i < room.teams.length; i++)
-		if(!room.teams[i].IsDead) liteTeams.push({ Uuid: room.teams[i].Uuid, Name: room.teams[i].Name });
+		if (!room.teams[i].IsDead) liteTeams.push({ Uuid: room.teams[i].Uuid, Name: room.teams[i].Name });
 
-	var voteTeamEvent = { Name: "VoteTeamEvent", Teams: liteTeams, TimeLeft: 20};
+	var voteTeamEvent = { Name: "VoteTeamEvent", Teams: liteTeams, TimeLeft: 20 };
 	for (var i = 0; i < correctPlayers.length; i++) {
 		sendEvent(voteTeamEvent, correctPlayers[i].client, room);
 	}
 
-	room.currentVoteTimeout = setTimeout(() => room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000), 3000);
+	room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000);
 }
 
 function voteTimeUp(room) {
