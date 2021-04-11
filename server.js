@@ -449,12 +449,14 @@ function questionTimeUp(room) {
 function voteTimeUp(room) {
 	var currentMaxVotedTeam = null;
 	for (var i = 0; i < room.teams.length; i++) {
-		if (currentMaxVotedTeam == null || room.teams[i].CurrentVotes > currentMaxVotedTeam.CurrentVotes)
+		if (room.teams[i].CurrentVotes > 0 && (currentMaxVotedTeam == null || room.teams[i].CurrentVotes > currentMaxVotedTeam.CurrentVotes))
 			currentMaxVotedTeam = room.teams[i];
 	}
 	if (currentMaxVotedTeam != null) {
 		sendToAll({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, SentInfo: true }, room);
-	}
+	} else {
+		sendToAll({ Name: "VoteTeamEvent", MostVotedTeamName: "", SentInfo: true }, room);
+    }
 	for (var i = 0; i < room.teams.length; i++) room.teams[i].CurrentVotes = 0;
 	room.currentVoteTimeout = null;
 }
