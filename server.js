@@ -470,6 +470,7 @@ function parseEvent(eventObject, ws, room) {
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				sendToAll(eventObject, room);
+				sendToAll({ Name: "QuestionEvent", SentInfo: true, Question: "When Hom Hom?", Answers: ["Today", "Yesterday", "1934", "1345"]}, room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
