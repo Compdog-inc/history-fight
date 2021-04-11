@@ -1,0 +1,38 @@
+unknown: unknown
+debug.test: Test
+uipanel.title: Выберите команду
+uipanel.title.funny: Чего изволите?
+netresp.notfound: Игра не найдена
+netresp.notfound.funny: Здесь пусто
+netresp.started: Игра уже началась
+netresp.started.funny: Поезд ушёл...
+game.attackchoose: Выберите команду для атаки:
+game.attackchoose.funny: Кого хомячить?
+game.attackinfo: Атакована команда {0}!%n%Было нанесено {1} урона!
+game.attackinfo.funny: Схомячена команда {0}!%n%Было нанесено {1} урона!
+gameresp.correct: <color=green>Вы ответили правильно!</color>
+gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
+gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
+gameresp.incorrect.funny: <color=red>Ну, в следуюший раз!</color>
+game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>RANK {1}</color>
+game.teamhealth: {0} HP
+closereason.unknown: Что-то произошло :(
+closereason.unknown.funny: Ой! Что это?
+closereason.teamremoved: Вашу команду удалили
+closereason.teamremoved.funny: Пока-пока!
+closereason.gamestarted: Вы не выбрали команду, а игра уже началась
+closereason.gamestarted.funny: Слишком долго выбирал
+game.waitingforquestion: Ждём конца таймера на вопрос...
+game.waitingforquestion.funny: Бег на месте...
+game.waitingforvotes: Ждём конца голосования...
+game.waitingforvotes.funny: Ждём других...
+loading.downloaditem: Загружаю <color=#40acde>'{0}'</color>... 
+loading.downloadlang: Загружаю языковой файл... 
+setup.title1: Введите Код:
+setup.title2: Введите Кот:
+setup.title1.funny: Пароль:
+setup.title2.funny: Паром?
+msgbox.leave.title: Точно?
+msgbox.leave.text: Ты уверен, что хочешь выйти из игры?%n%Ты потеряешь весь свой прогресс и подведёшь своих друзей!%n%Так что не советую...
+msgbox.btn.yes: Да
+msgbox.btn.no: Нет
