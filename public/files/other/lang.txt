@@ -10,8 +10,8 @@ game.attackchoose: Выберите команду для атаки:
 game.attackchoose.funny: Кого хомячить?
 game.attackinfo: Атакована команда {0}!%n%Было нанесено {1} урона!
 game.attackinfo.funny: Схомячена команда {0}!%n%Было нанесено {1} урона!
-game.attackinfo.none: Никакая команда небыла атакована!
-game.attackinfo.none.funny: Никакая команда небыла схомячена!
+game.attackinfo.none: Никакая команда не была атакована!
+game.attackinfo.none.funny: Никакая команда не была схомячена!
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
@@ -35,6 +35,10 @@ setup.title2: Введите Кот:
 setup.title1.funny: Пароль:
 setup.title2.funny: Паром?
 msgbox.leave.title: Точно?
+msgbox.leave.title.funny: Уверен?
 msgbox.leave.text: Ты уверен, что хочешь выйти из игры?%n%Ты потеряешь весь свой прогресс и подведёшь своих друзей!%n%Так что не советую...
+msgbox.leave.text.funny: Уже уходишь? Хорошо подумал?
 msgbox.btn.yes: Да
+msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
+msgbox.btn.no.funny: Неа
