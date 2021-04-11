@@ -472,10 +472,10 @@ function voteTimeUp(room) {
 			currentMaxVotedTeam.Health = 0;
 			currentMaxVotedTeam.IsDead = true;
         }
-		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, SentInfo: true }, room);
+		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, TimeLeft: 3, SentInfo: true }, room);
 		sendToAllAlive({ Name: "TeamStatusChangeEvent", teamInfo: { greenValue: currentMaxVotedTeam.Health / 100, limeValue: currentMaxVotedTeam.Health / 100, orangeValue: prevHealth / 100, xp: 0, rank: 0 } }, room);
 	} else {
-		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: "", SentInfo: true }, room);
+		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: "", TimeLeft: 3, SentInfo: true }, room);
     }
 	for (var i = 0; i < room.teams.length; i++) room.teams[i].CurrentVotes = 0;
 	room.currentVoteTimeout = null;
