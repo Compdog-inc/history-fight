@@ -4,7 +4,7 @@ setupui.title: Настройте Игру
 setupui.title.funny: Как будем играть?
 connectui.code: Код: {0}
 connectui.code.funny: Кот: {0}
-qrcode.url: http://www.compdog.tk/games/history-fight?code={0}
+qrcode.url: http://www.compdog.ga/games/history-fight?code={0}
 msgbox.leave.title: Точно?
 msgbox.leave.title.funny: Уверены?
 msgbox.leave.text: Вы уверены, что хотите закончить игру?
