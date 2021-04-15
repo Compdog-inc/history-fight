@@ -17,5 +17,5 @@ statslabel: {0}: <color=#39ce1e>{1} HP</color> | <color=#ba3cd1>{2} XP</color> |
 statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>нету XP</color> | <color=#4e8ee8>нету места</color>
 currentwinner.text: Высший ранг у <u>{0}</u>!
 currentwinner.text.undefined: Высший ранг неопределён :/
-infotext: Урон получили <color=orange>{0}</color> команд\r\nУрон нанесли <color=yellow>{1}</color> команд\r\nУбили <color=red>{2}</color> команд
-infotext.undefined: Урон получили <color=orange>?</color> команд\r\nУрон нанесли <color=yellow>?</color> команд\r\nУбили <color=red>?</color> команд
+infotext: Урон получили <color=orange>{0}</color> команд\x0D\x0AУрон нанесли <color=yellow>{1}</color> команд\x0D\x0AУбили <color=red>{2}</color> команд
+infotext.undefined: Урон получили <color=orange>?</color> команд\x0D\x0AУрон нанесли <color=yellow>?</color> команд\x0D\x0AУбили <color=red>?</color> команд
