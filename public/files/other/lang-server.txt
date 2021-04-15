@@ -13,3 +13,5 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
+statslabel.infostring: "{0}: <color=#39ce1e>{1} HP</color> | <color=#ba3cd1>{2} XP</color> | <color=#4e8ee8>{3}-е место</color>"
+statslabel.infostring.undefined: "{0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>нету XP</color> | <color=#4e8ee8>нету места</color>"
