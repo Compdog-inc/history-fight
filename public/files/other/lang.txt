@@ -14,7 +14,7 @@ gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
 gameresp.incorrect.funny: <color=red>Ну, в следуюший раз!</color>
-game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>RANK {1}</color>
+game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>{1}-е место</color>
 game.teamhealth: {0} HP
 closereason.unknown: Что-то произошло :(
 closereason.unknown.funny: Ой! Что это?
