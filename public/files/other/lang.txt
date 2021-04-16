@@ -6,16 +6,16 @@ netresp.notfound: Игра не найдена
 netresp.notfound.funny: Здесь пусто
 netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
-game.attackinfo: Атаковано <color=yellow>{0}</color> команд!%n%Было нанесено по <color=yellow>{1}</color> урона!
-game.attackinfo.funny: Схомячено <color=yellow>{0}</color> команд!%n%Было нанесено по <color=yellow>{1}</color> урона!
+game.attackinfo: Атаковано <color=yellow>{0}</color> команд!%n%Было нанесено по <color=orange>{1}</color> урона!
+game.attackinfo.funny: Схомячено <color=yellow>{0}</color> команд!%n%Было нанесено по <color=orange>{1}</color> урона!
 game.attackinfo.none: Никакая команда не была атакована!
 game.attackinfo.none.funny: Никакая команда не была схомячена!
-game.hurtinfo: Вашей команде нанесли <color=orange>{0}</color> урона!
-game.hurtinfo.funny: У вашей команды снесли <color=orange>{0}</color> HP!
+game.hurtinfo: Вашей команде нанесли <color=red>{0}</color> урона!
+game.hurtinfo.funny: У вашей команды снесли <color=red>{0}</color> HP!
 game.hurtinfo.none: Вашей команде не нанесли урона!
 game.hurtinfo.none.funny: Не нанесли урона... повезло, повезло!
-game.ifkilled: <color=red>И вашу команду убили... :(</color>
-game.ifkilled.funny: <color=red>И вас кикнуло с сервера... <b>F...</b></color>
+game.ifkilled: <color=red>И вашу команду взяли и убили... :(</color>
+game.ifkilled.funny: <color=red>И вашу команду кикнуло с сервера... <b>F...</b></color>
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
