@@ -18,7 +18,7 @@ statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>�
 statslabel.killed: {0}: <color=#ea3c10>убит</color> | <color=#ba3cd1>{1} XP</color> | <color=#4e8ee8>{2}-е место</color>
 currentwinner.text: Высший ранг у <u>{0}</u>!
 currentwinner.text.undefined: Высший ранг неопределён :/
-infotext:    <color=orange>{0}</color>   <color=yellow>{1}</color>   <color=red>{2}</color>
-infotext.undefined:    <color=orange>?</color>   <color=yellow>?</color>   <color=red>?</color>
+infotext: <sprite=1><color=orange>{0}</color> <sprite=0><color=yellow>{1}</color> <sprite=2><color=red>{2}</color>
+infotext.undefined: <sprite=1><color=orange>?</color> <sprite=0><color=yellow>?</color> <sprite=2><color=red>?</color>
 loading.downloadlang: Загружаю языковой файл... 
 loading.downloaditem: Загружаю <color=#40acde>'{0}'</color>... 
