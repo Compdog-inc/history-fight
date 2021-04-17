@@ -15,6 +15,7 @@ msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
 statslabel: {0}: <color=#39ce1e>{1} HP</color> | <color=#ba3cd1>{2} XP</color> | <color=#4e8ee8>{3}-е место</color>
 statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>нету XP</color> | <color=#4e8ee8>нету места</color>
+statslabel.killed: {0}: <color=#ea3c10>убит</color> | <color=#ba3cd1>{1} XP</color> | <color=#4e8ee8>{2}-е место</color>
 currentwinner.text: Высший ранг у <u>{0}</u>!
 currentwinner.text.undefined: Высший ранг неопределён :/
 infotext: Урон получили <color=orange>{0}</color> команд%n%Урон нанесли <color=yellow>{1}</color> команд%n%Убили <color=red>{2}</color> команд
