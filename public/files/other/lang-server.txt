@@ -16,8 +16,6 @@ msgbox.btn.no.funny: Неа
 statslabel: {0}: <color=#39ce1e>{1} HP</color> | <color=#ba3cd1>{2} XP</color> | <color=#4e8ee8>{3}-е место</color>
 statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>нету XP</color> | <color=#4e8ee8>нету места</color>
 statslabel.killed: {0}: <color=#ea3c10>убит</color> | <color=#ba3cd1>{1} XP</color> | <color=#4e8ee8>{2}-е место</color>
-currentwinner.text: Высший ранг у <u>{0}</u>!
-currentwinner.text.undefined: Высший ранг неопределён :/
 infotext: <sprite=1><color=orange>{0}</color> <sprite=0><color=yellow>{1}</color> <sprite=2><color=red>{2}</color>
 infotext.undefined: <sprite=1><color=orange>?</color> <sprite=0><color=yellow>?</color> <sprite=2><color=red>?</color>
 loading.downloadlang: Загружаю языковой файл... 
