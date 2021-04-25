@@ -103,7 +103,14 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 });
 
 app.get("/themes/get", function (req, res) {
-	res.send(JSON.stringify({ page: req.query.page, themes:[] }));
+	if (req.query.page) {
+		var page = parseInt(req.query.page);
+		if (typeof (page) == typeof (number) && page >= 0) {
+			res.send({ page: req.query.page, themes: [] });
+		} else
+			res.status(400).send("Bad Request! Make sure page is a valid number.");
+	} else
+		res.status(400).send("Bad Request! Make sure you have 'page' in url.");
 });
 
 app.get("*", function (req, res) {
