@@ -107,8 +107,8 @@ function getThemes(page) {
 	for (var i = 0; i < 50; i++) {
 		result.push({
 			id: "6Wag76gdwa",
-			display: "Theme #" + (i + 1 + page),
-			description: "Some theme with some number with some value that equals '" + (i + 1 + page) + "'.",
+			display: "Theme #" + (i + 1 + page*50),
+			description: "Some theme with some number with some value that equals '" + (i + 1 + page*50) + "'.",
 			modtime: 1619360155639,
 			views: 358 + i,
 			rating: 4.56545
