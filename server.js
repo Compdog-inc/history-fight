@@ -107,8 +107,8 @@ function getThemes(page) {
 	for (var i = 0; i < 50; i++) {
 		result.push({
 			id: "6Wag76gdwa",
-			display: "Theme #" + (i + 1),
-			description: "Some theme with some id with some value that equals '" + (i + 1) + "'.",
+			display: "Theme #" + (i + 1 + page),
+			description: "Some theme with some number with some value that equals '" + (i + 1 + page) + "'.",
 			modtime: 1619360155639,
 			views: 358 + i,
 			rating: 4.56545
@@ -122,8 +122,11 @@ app.get("/themes/get", function (req, res) {
 		if (!isNaN(req.query.page)) {
 			var page = parseInt(req.query.page);
 			if (!isNaN(page) && page >= 0) {
-				res.status(200).send({ page: page, themes: getThemes(page) });
-				return;
+				var pageCount = 5;
+				if (page <= pageCount) {
+					res.status(200).send({ page: page, end: page == pageCount, themes: getThemes(page) });
+					return;
+				}
 			}
 		}
 		res.status(400).send("Bad Request! Make sure page is a valid number.");
