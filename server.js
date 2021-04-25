@@ -102,12 +102,27 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 	});
 });
 
+function getThemes(page) {
+	var result = [];
+	for (var i = 0; i < 50; i++) {
+		result.push({
+			id: "6Wag76gdwa",
+			display: "Theme #" + (i + 1),
+			description: "Some theme with some id with some value that equals '" + (i + 1) + "'.",
+			modtime: 1619360155639,
+			views: 358 + i,
+			rating: 4.56545
+		});
+    }
+	return result;
+}
+
 app.get("/themes/get", function (req, res) {
 	if (req.query.page) {
 		if (!isNaN(req.query.page)) {
 			var page = parseInt(req.query.page);
 			if (!isNaN(page) && page >= 0) {
-				res.send({ page: page, themes: [] });
+				res.status(200).send({ page: page, themes: getThemes(page) });
 				return;
 			}
 		}
