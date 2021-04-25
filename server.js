@@ -102,6 +102,10 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 	});
 });
 
+app.get("/themes/get", function (req, res) {
+	res.send(JSON.stringify({ page: req.query.page, themes:[] }));
+});
+
 app.get("*", function (req, res) {
 	res.send(`<!DOCTYPE html>
 <html>
