@@ -6,17 +6,22 @@ netresp.notfound: Игра не найдена
 netresp.notfound.funny: Здесь пусто
 netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
-game.attackchoose: Выберите команду для атаки:
-game.attackchoose.funny: Кого хомячить?
-game.attackinfo: Атакована команда {0}!%n%Было нанесено {1} урона!
-game.attackinfo.funny: Схомячена команда {0}!%n%Было нанесено {1} урона!
+game.attackinfo: Атаковано <color=#2dfcc5>{0}</color> команд!%n%Было нанесено по <color=#fcd62f>{1}</color> урона!
+game.attackinfo.funny: Схомячено <color=#2dfcc5>{0}</color> команд!%n%Было нанесено по <color=#fcd62f>{1}</color> урона!
 game.attackinfo.none: Никакая команда не была атакована!
 game.attackinfo.none.funny: Никакая команда не была схомячена!
+game.hurtinfo: Вашей команде нанесли <color=#f26060>{0}</color> урона!
+game.hurtinfo.funny: У вашей команды снесли <color=#f26060>{0}</color> HP!
+game.hurtinfo.none: Вашей команде не нанесли урона!
+game.hurtinfo.none.funny: Не нанесли урона... повезло, повезло!
+game.ifkilled: <color=#e80202>И вашу команду взяли и убили... :(</color>
+game.ifkilled.funny: <color=#e80202>И вас кикнуло с сервера... <b>F...</b></color>
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
 gameresp.incorrect.funny: <color=red>Ну, в следуюший раз!</color>
-game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>RANK {1}</color>
+game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>{1}-е место</color>
+game.teaminfo.unknownrank: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>нету места</color>
 game.teamhealth: {0} HP
 closereason.unknown: Что-то произошло :(
 closereason.unknown.funny: Ой! Что это?

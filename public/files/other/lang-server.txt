@@ -4,7 +4,7 @@ setupui.title: Настройте Игру
 setupui.title.funny: Как будем играть?
 connectui.code: Код: {0}
 connectui.code.funny: Кот: {0}
-qrcode.url: http://www.compdog.tk/games/history-fight?code={0}
+qrcode.url: http://www.compdog.ga/games/history-fight?code={0}
 msgbox.leave.title: Точно?
 msgbox.leave.title.funny: Уверены?
 msgbox.leave.text: Вы уверены, что хотите закончить игру?
@@ -13,3 +13,12 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
+statslabel: {0}: <color=#39ce1e>{1} HP</color> | <color=#ba3cd1>{2} XP</color> | <color=#4e8ee8>{3}-е место</color>
+statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>нету XP</color> | <color=#4e8ee8>нету места</color>
+statslabel.killed: {0}: <color=#ea3c10>убит</color> | <color=#ba3cd1>{1} XP</color> | <color=#4e8ee8>{2}-е место</color>
+infotext: <sprite=1><color=orange>{0}</color> <sprite=0><color=yellow>{1}</color> <sprite=2><color=red>{2}</color>
+infotext.undefined: <sprite=1><color=orange>?</color> <sprite=0><color=yellow>?</color> <sprite=2><color=red>?</color>
+currenttheme: Тема игры: {0}
+currenttheme.undefined: Тема игры не определена...
+loading.downloadlang: Загружаю языковой файл... 
+loading.downloaditem: Загружаю <color=#40acde>'{0}'</color>... 
