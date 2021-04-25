@@ -107,7 +107,7 @@ app.get("/themes/get", function (req, res) {
 		if (!isNaN(req.query.page)) {
 			var page = parseInt(req.query.page);
 			if (!isNaN(page) && page >= 0) {
-				res.send({ page: req.query.page, themes: [] });
+				res.send({ page: page, themes: [] });
 				return;
 			}
 		}
