@@ -47,4 +47,4 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
-gameend.rankinfo: Игра окончена!%n%<i>Ваше место: {0}</i>
+gameend.rankinfo: <color=#f4e6d7>Игра окончена!</color>%n%<color=#f1f4d7><u>Ваше место: </u></color><color=#d5f2c1><u>{0}</u>
