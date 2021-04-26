@@ -47,3 +47,4 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
+gameend.rankinfo: Игра окончена!%n%Ваш ранг: {0}
