@@ -2,7 +2,7 @@ unknown: unknown
 debug.test: Test
 setupui.title: Настройте Игру
 setupui.title.funny: Как будем играть?
-setupui.themeinputplaceholder: Введите тему
+setupui.themeinput.placeholder: Введите тему
 connectui.code: Код: {0}
 connectui.code.funny: Кот: {0}
 qrcode.url: http://www.compdog.ga/games/history-fight?code={0}
