@@ -2,6 +2,12 @@ unknown: unknown
 debug.test: Test
 setupui.title: Настройте Игру
 setupui.title.funny: Как будем играть?
+setupui.themeinput.placeholder: Введите тему
+setupui.options.choosetheme: Выберите тему для игры
+setupui.options.maxplayers: Максимум игроков в команде
+setupui.options.maxteams: Максимум команд в игре
+setupui.options.maxhp: Максимальное HP у команд
+setupui.options.randomquestion: Разные вопросы внутри команд
 connectui.code: Код: {0}
 connectui.code.funny: Кот: {0}
 qrcode.url: http://www.compdog.ga/games/history-fight?code={0}
@@ -18,7 +24,9 @@ statslabel.undefined: {0}: <color=#39ce1e>нету HP</color> | <color=#ba3cd1>�
 statslabel.killed: {0}: <color=#ea3c10>убит</color> | <color=#ba3cd1>{1} XP</color> | <color=#4e8ee8>{2}-е место</color>
 infotext: <sprite=1><color=orange>{0}</color> <sprite=0><color=yellow>{1}</color> <sprite=2><color=red>{2}</color>
 infotext.undefined: <sprite=1><color=orange>?</color> <sprite=0><color=yellow>?</color> <sprite=2><color=red>?</color>
+teamstatslabel: Здоровье/очки у команд:
 currenttheme: Тема игры: {0}
 currenttheme.undefined: Тема игры не определена...
+winui.title: Лучшие команды!
 loading.downloadlang: Загружаю языковой файл... 
 loading.downloaditem: Загружаю <color=#40acde>'{0}'</color>... 
