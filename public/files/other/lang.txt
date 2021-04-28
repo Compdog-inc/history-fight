@@ -47,4 +47,7 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
-gameend.rankinfo: <color=#f4e6d7>Игра окончена!</color>%n%<color=#f1f4d7><u>Ваше место: </u></color><color=#d5f2c1><u>{0}</u>
+gameend.rankinfo.place1: <sprite=5>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u><b>#1</b></u></color> <color=#f1f4d7><u>место!!!</u></color>
+gameend.rankinfo.place2: <sprite=5>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u>#2</u></color> <color=#f1f4d7><u>место!</u></color>
+gameend.rankinfo.place3: <sprite=6>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u>#3</u></color> <color=#f1f4d7><u>место!</u></color>
+gameend.rankinfo: <color=#f4e6d7>Игра окончена!</color>%n%<color=#f1f4d7><u>Ваше место: </u></color><color=#d5f2c1><u>#{0}</u>
