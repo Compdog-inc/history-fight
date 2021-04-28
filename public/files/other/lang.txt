@@ -6,8 +6,8 @@ netresp.notfound: Игра не найдена
 netresp.notfound.funny: Здесь пусто
 netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
-game.attackinfo: Атаковано <color=#2dfcc5>{0}</color> команд!%n%Было нанесено по <color=#fcd62f>{1}</color> урона!
-game.attackinfo.funny: Схомячено <color=#2dfcc5>{0}</color> команд!%n%Было нанесено по <color=#fcd62f>{1}</color> урона!
+game.attackinfo: Побито команд: <color=#2dfcc5>{0}</color><sprite=3>%n%Разбито команд: <color=#fcd62f>{1}</color><sprite=7>%n%Получено урона: <color=#f26060>{2}</color><sprite=4>
+game.attackinfo.funny: Похомячено: <color=#2dfcc5>{0}</color><sprite=3>%n%Схомячено: <color=#fcd62f>{1}</color><sprite=7>%n%Вхомячено (нам): <color=#f26060>{2}</color><sprite=4>
 game.attackinfo.none: Никакая команда не была атакована!
 game.attackinfo.none.funny: Никакая команда не была схомячена!
 game.hurtinfo: Вашей команде нанесли <color=#f26060>{0}</color> урона!
