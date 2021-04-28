@@ -14,8 +14,8 @@ game.hurtinfo: Вашей команде нанесли <color=#f26060>{0}</colo
 game.hurtinfo.funny: У вашей команды снесли <color=#f26060>{0}</color> HP!
 game.hurtinfo.none: Вашей команде не нанесли урона!
 game.hurtinfo.none.funny: Не нанесли урона... повезло, повезло!
-game.ifkilled: <color=#e80202>И вашу команду взяли и убили... :(</color>
-game.ifkilled.funny: <color=#e80202>И вас кикнуло с сервера... <b>F...</b></color>
+game.ifkilled: <sprite=1><color=red>И нас убили...</color><sprite=1>
+game.ifkilled.funny: <sprite=1><color=red>И нас схомячили...</color><sprite=1>
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
