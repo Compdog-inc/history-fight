@@ -129,7 +129,7 @@ app.get("/themes/get", function (req, res) {
 				}
 			}
 		}
-		res.status(400).send("Bad Request! Make sure page is a valid number.");
+		res.status(400).send("Bad Request! Make sure page is a valid number.");	
 	} else
 		res.status(400).send("Bad Request! Make sure you have 'page' in url.");
 });
@@ -248,6 +248,10 @@ function generateNum(n) {
 	var number = Math.floor(Math.random() * (max - min + 1)) + min;
 
 	return ("" + number).substring(add);
+}
+
+function randomInt(min, max) {
+	return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function generateRoomCode() {
@@ -405,7 +409,7 @@ function removeTeam(uuid, room) {
 }
 
 function IsRoomValid(room) {
-	return room.teams.length > 0 && room.teams.length <= room.settings.maxTeams;
+	return room.teams.length > 1 && room.teams.length <= room.settings.maxTeams;
 }
 
 function sendToAll(eventObject, room) {
@@ -475,20 +479,65 @@ function questionTimeUp(room) {
 	room.currentQuestionTimeout = null;
 	room.currentQuestion = null;
 
-	room.currentVoteTimeout = setTimeout(() => initVoting(room, correctPlayers), 3000);
+	room.currentVoteTimeout = setTimeout(() => randomVoting(room, correctPlayers), 3000);
 }
 
-function initVoting(room, correctPlayers) {
-	var liteTeams = [];
-	for (var i = 0; i < room.teams.length; i++)
-		if (!room.teams[i].IsDead) liteTeams.push({ Uuid: room.teams[i].Uuid, Name: room.teams[i].Name });
+function getRandomTeam(room, ignoreTeamId) {
+	var teamIndex = randomInt(0, room.teams.length);
+	if (room.teams[teamIndex].Uuid === ignoreTeamId)
+		return getRandomTeam(room, ignoreTeamId);
+	return room.teams[teamIndex];
+}
 
-	var voteTeamEvent = { Name: "VoteTeamEvent", Teams: liteTeams, TimeLeft: 20 };
-	for (var i = 0; i < correctPlayers.length; i++) {
-		sendEvent(voteTeamEvent, correctPlayers[i].client, room);
+function randomVoting(room, correctPlayers) {
+	var teamsKilled = 0;
+	var teamsAttacked = 0;
+	var teamsHealed = 0;
+
+	for (var i = 0; i < room.teams.length; i++) {
+		var team = room.teams[i];
+		if (!team.IsDead) {
+			var t = getRandomTeam(room, team);
+			t.Health -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+			teamsAttacked++;
+			if (t.Health <= 0) {
+				t.IsDead = true;
+				teamsKilled++;
+			}
+		}
 	}
 
-	room.currentVoteTimeout = setTimeout(() => voteTimeUp(room), 20 * 1000);
+	for (var i = 0; i < correctPlayers.length; i++) {
+		var team = getTeamByClientId(correctPlayers[i].id, room);
+		if (!team.IsDead) {
+			team.Health++;
+			teamsHealed++;
+			if (team.Health > room.settings.maxTeamHP) team.Health = room.settings.maxTeamHP;
+			if (team.Health <= 0) team.IsDead = true;
+		}
+	}
+
+	for (var i = 0; i < room.teams.length; i++) {
+		sendToTeam({
+			Name: "AttacksInfoEvent",
+			TeamsKilled: teamsKilled,
+			TeamsAttacked: teamsAttacked,
+			HurtDamage: room.teams[i].BeforeHealth - room.teams[i].Health,
+			Killed: room.teams[i].IsDead
+		}, room, room.teams[i]);
+	}
+
+	sendToServer({
+		Name: "StatsUpdateEvent",
+		Teams: room.teams,
+		TeamsKilled: teamsKilled,
+		TeamsAttacked: teamsAttacked,
+		TeamsHurted: teamsHealed
+	}, room);
+
+	room.currentVoteTimeout = null;
+
+	setTimeout(() => sendNewQuestion(room), 3000);
 }
 
 function voteTimeUp(room) {
@@ -527,7 +576,7 @@ function parseEvent(eventObject, ws, room) {
 			var player = getPlayerByClient(ws, room);
 			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
-				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], CurrentVotes: 0, Health: 100, IsDead: false };
+				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], Health: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, IsDead: false, CorrectPlayers: 0 };
 				room.teams.push(newTeam);
 				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
@@ -536,30 +585,33 @@ function parseEvent(eventObject, ws, room) {
 				ws.send(INT_RESPONSE_INVALID);
 			break;
 		case "NewRoomEvent":
-			var rmCode = generateRoomCode();
-			room = {
-				code: rmCode,
-				teams: [],
-				clients: [],
-				server: ws,
-				started: false,
-				currentQuestion: null,
-				currentQuestionTimeout: null,
-				currentVoteTimeout: null,
-				settings: eventObject.settings
-			};
-			ws.on('message', (message) => {
-				try {
-					var eventObject = JSON.parse(message);
-					parseEvent(eventObject, ws, room);
-				} catch (e) {
-					console.error("Error parsing event: " + e.stack);
-					ws.send(INT_RESPONSE_INTERNAL_ERROR);
-				}
-			});
-			rooms.push(room);
-			eventObject.code = rmCode;
-			sendEvent(eventObject, ws, room);
+			if (eventObject.settings.theme != "") {
+				var rmCode = generateRoomCode();
+				room = {
+					code: rmCode,
+					teams: [],
+					clients: [],
+					server: ws,
+					started: false,
+					currentQuestion: null,
+					currentQuestionTimeout: null,
+					currentVoteTimeout: null,
+					settings: eventObject.settings
+				};
+				ws.on('message', (message) => {
+					try {
+						var eventObject = JSON.parse(message);
+						parseEvent(eventObject, ws, room);
+					} catch (e) {
+						console.error("Error parsing event: " + e.stack);
+						ws.send(INT_RESPONSE_INTERNAL_ERROR);
+					}
+				});
+				rooms.push(room);
+				eventObject.code = rmCode;
+				sendEvent(eventObject, ws, room);
+			} else
+				ws.send(INT_RESPONSE_INVALID);
 			break;
 		case "RemoveTeamEvent":
 			if (!room.started) {
@@ -591,6 +643,7 @@ function parseEvent(eventObject, ws, room) {
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				sendToAll(eventObject, room);
+				sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
 				sendNewQuestion(room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
@@ -601,19 +654,6 @@ function parseEvent(eventObject, ws, room) {
 				if (player.questionAnsweredTime <= 0) {
 					player.questionAnsweredTime = Date.now();
 					player.questionAnsweredCorrect = eventObject.Answer === room.currentQuestion.answer;
-				} else
-					ws.send(INT_RESPONSE_INVALID);
-			} else
-				ws.send(INT_RESPONSE_INVALID);
-			break;
-		case "VoteTeamEvent":
-			if (room.started) {
-				var player = getPlayerByClient(ws, room);
-				if (player.questionAnsweredCorrect && eventObject.SelectedTeam) {
-					var team = getTeamById(eventObject.SelectedTeam, room);
-					if (team)
-						team.CurrentVotes++;
-					player.questionAnsweredCorrect = false;
 				} else
 					ws.send(INT_RESPONSE_INVALID);
 			} else
