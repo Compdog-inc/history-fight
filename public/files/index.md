@@ -2,6 +2,7 @@
 - [click1.wav](audio/click1.wav)
 - [click2.wav](audio/click2.wav)
 - [click3.wav](audio/click3.wav)
+- [bgfx-1.wav](audio/bgfx-1.wav)
 
 # Game Build
 - [Build.data.br](game/Build.data.br)
