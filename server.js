@@ -521,7 +521,7 @@ function randomVoting(room, correctPlayers) {
 			}
 		}
 	}
-
+	//f
 	for (var i = 0; i < correctPlayers.length; i++) {
 		var team = getTeamByClientId(correctPlayers[i].id, room);
 		if (!team.IsDead) {
