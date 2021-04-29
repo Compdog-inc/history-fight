@@ -104,17 +104,29 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 
 function getThemes(page) {
 	var result = [];
-	for (var i = 0; i < 50; i++) {
-		result.push({
-			id: "6Wag76gdwa",
-			display: "Theme #" + (i + 1 + page*50),
-			description: "Some theme with some number with some value that equals '" + (i + 1 + page*50) + "'.",
-			modtime: 1619360155639,
-			views: 358 + i,
-			rating: 4.56545
-		});
-    }
+	result.push({
+		id: "demo228",
+		display: "Demo Theme",
+		description: "This is a demo theme. Soon we will add user themes.",
+		modtime: 1619723905190,
+		views: 782,
+		rating: 4.69228
+	});
 	return result;
+}
+
+function getThemeInfo(id) {
+	if (id == "demo228") {
+		return {
+			id: "demo228",
+			display: "Demo Theme",
+			description: "This is a demo theme. Soon we will add user themes.",
+			modtime: 1619723905190,
+			views: 782,
+			rating: 4.69228
+		};
+	}
+	return null;
 }
 
 app.get("/themes/get", function (req, res) {
@@ -122,7 +134,7 @@ app.get("/themes/get", function (req, res) {
 		if (!isNaN(req.query.page)) {
 			var page = parseInt(req.query.page);
 			if (!isNaN(page) && page >= 0) {
-				var pageCount = 5;
+				var pageCount = 1;
 				if (page <= pageCount) {
 					res.status(200).send({ page: page, end: page == pageCount, themes: getThemes(page) });
 					return;
@@ -697,7 +709,7 @@ function parseEvent(eventObject, ws, room) {
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				room.teamsAlive = room.teams.length;
 				sendToAll(eventObject, room);
-				sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
+				sendToServer({ Name: "GameStartEvent", Theme: getThemeInfo(room.settings.theme).display, Teams: room.teams }, room);
 				sendToServer({
 					Name: "StatsUpdateEvent",
 					Teams: room.teams
