@@ -523,7 +523,7 @@ function sendNewQuestion(room) {
 		timeStart: Date.now()
 	};
 	sendToAllAlive({ Name: "QuestionEvent", SentInfo: false, TimeLeft: question.timeGiven, Question: question.question, Answers: question.answers }, room);
-	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), timeGiven * 1000);
+	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), question.timeGiven * 1000);
 }
 
 function questionTimeUp(room) {
