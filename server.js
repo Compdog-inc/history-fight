@@ -521,7 +521,7 @@ function randomVoting(room, correctPlayers) {
 			}
 		}
 	}
-	//f
+
 	for (var i = 0; i < correctPlayers.length; i++) {
 		var team = getTeamByClientId(correctPlayers[i].id, room);
 		if (team != null && !team.IsDead) {
@@ -554,9 +554,17 @@ function randomVoting(room, correctPlayers) {
 		}, room, room.teams[i]);
 	}
 
+	var teams = [];
+
+	for (var i = 0; i < room.teams.length; i++) {
+		teams.push(room.teams[i]);
+	}
+
+	teams.sort((a, b) => (a.XP > b.XP) ? 1 : -1);
+
 	sendToServer({
 		Name: "StatsUpdateEvent",
-		Teams: room.teams,
+		Teams: teams,
 		TeamsKilled: teamsKilled,
 		TeamsAttacked: teamsAttacked,
 		TeamsHurted: teamsHurt
@@ -570,43 +578,35 @@ function randomVoting(room, correctPlayers) {
 }
 
 function endGame(room) {
+	var winners = ["?", "?", "?"];
+
+	var teams = [];
+
+	for (var i = 0; i < room.teams.length; i++) {
+		teams.push(room.teams[i]);
+	}
+
+	teams.sort((a, b) => (a.Rank > b.Rank) ? 1 : -1);
+
+	for (var i = 0; i < teams.length && i < 3; i++) {
+		winners[i] = teams[i].Name;
+    }
+
 	sendToServer({
 		Name: "GameEndEvent",
-		Winners: [room.teams[0].Name, room.teams[1].Name, "Forgot the name"]
+		Winners: winners
 	}, room);
 
-	sendToAll({
-		Name: "GameEndEvent",
-		TeamRank: 69
-	}, room);
+	for (var i = 0; i < room.teams.length; i++) {
+		sendToTeam({
+			Name: "GameEndEvent",
+			TeamRank: room.teams[i].Rank
+		}, room, room.teams[i]);
+	}
 
 	for (var i = 0; i < room.teams.length; i++) {
 		room.teams[i].CorrectPlayers = 0;
     }
-}
-
-function voteTimeUp(room) {
-	var currentMaxVotedTeam = null;
-	for (var i = 0; i < room.teams.length; i++) {
-		if (room.teams[i].CurrentVotes > 0 && (currentMaxVotedTeam == null || room.teams[i].CurrentVotes > currentMaxVotedTeam.CurrentVotes))
-			currentMaxVotedTeam = room.teams[i];
-	}
-	if (currentMaxVotedTeam != null) {
-		var prevHealth = currentMaxVotedTeam.Health;
-		currentMaxVotedTeam.Health -= 1;
-		if (currentMaxVotedTeam.Health <= 0) {
-			currentMaxVotedTeam.Health = 0;
-			currentMaxVotedTeam.IsDead = true;
-        }
-		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: currentMaxVotedTeam.Name, DamageDealt: 1, TimeLeft: 3, SentInfo: true }, room);
-		sendToAllAlive({ Name: "TeamStatusChangeEvent", teamInfo: { greenValue: currentMaxVotedTeam.Health / 100, limeValue: currentMaxVotedTeam.Health / 100, orangeValue: prevHealth / 100, xp: 0, rank: 0 } }, room);
-	} else {
-		sendToAllAlive({ Name: "VoteTeamEvent", MostVotedTeamName: "", TimeLeft: 3, SentInfo: true }, room);
-    }
-	for (var i = 0; i < room.teams.length; i++) room.teams[i].CurrentVotes = 0;
-	room.currentVoteTimeout = null;
-
-	setTimeout(() => sendNewQuestion(room), 3000);
 }
 
 function parseEvent(eventObject, ws, room) {
@@ -621,7 +621,7 @@ function parseEvent(eventObject, ws, room) {
 			var player = getPlayerByClient(ws, room);
 			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
-				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], HP: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, IsDead: false, CorrectPlayers: 0 };
+				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], HP: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, XP: 0, Rank: 0, IsDead: false, CorrectPlayers: 0 };
 				room.teams.push(newTeam);
 				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
