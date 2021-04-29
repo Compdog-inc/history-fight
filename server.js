@@ -492,17 +492,20 @@ function getRandomTeam(room, ignoreTeamId) {
 function randomVoting(room, correctPlayers) {
 	var teamsKilled = 0;
 	var teamsAttacked = 0;
-	var teamsHealed = 0;
+	var teamsHurt = 0;
 
 	for (var i = 0; i < room.teams.length; i++) {
 		var team = room.teams[i];
 		if (!team.IsDead) {
-			var t = getRandomTeam(room, team);
-			t.Health -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
-			teamsAttacked++;
-			if (t.Health <= 0) {
-				t.IsDead = true;
-				teamsKilled++;
+			if (team.CorrectPlayers > 0) {
+				teamsAttacked++;
+				var t = getRandomTeam(room, team);
+				t.Health -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+				teamsHurt++;
+				if (t.Health <= 0) {
+					t.IsDead = true;
+					teamsKilled++;
+				}
 			}
 		}
 	}
@@ -517,7 +520,10 @@ function randomVoting(room, correctPlayers) {
 		}
 	}
 
+	room.teamsAlive = 0;
+
 	for (var i = 0; i < room.teams.length; i++) {
+		if (!room.teams[i].IsDead) room.teamsAlive++;
 		sendToTeam({
 			Name: "AttacksInfoEvent",
 			TeamsKilled: teamsKilled,
@@ -532,12 +538,26 @@ function randomVoting(room, correctPlayers) {
 		Teams: room.teams,
 		TeamsKilled: teamsKilled,
 		TeamsAttacked: teamsAttacked,
-		TeamsHurted: teamsHealed
+		TeamsHurted: teamsHurt
 	}, room);
 
 	room.currentVoteTimeout = null;
 
-	setTimeout(() => sendNewQuestion(room), 3000);
+	if (room.teamsAlive > 1)
+		setTimeout(() => sendNewQuestion(room), 3000);
+	else setTimeout(() => endGame(room), 3000);
+}
+
+function endGame(room) {
+	sendToServer({
+		Name: "GameEndEvent",
+		Winners: [room.teams[0].Name, room.teams[1].Name, room.teams[2].Name]
+	});
+
+	sendToAll({
+		Name: "GameEndEvent",
+		TeamRank: 69
+	}, room);
 }
 
 function voteTimeUp(room) {
@@ -592,6 +612,7 @@ function parseEvent(eventObject, ws, room) {
 					teams: [],
 					clients: [],
 					server: ws,
+					teamsAlive: 0,
 					started: false,
 					currentQuestion: null,
 					currentQuestionTimeout: null,
@@ -642,6 +663,7 @@ function parseEvent(eventObject, ws, room) {
 				room.started = true;
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
+				room.teamsAlive = room.teams.length;
 				sendToAll(eventObject, room);
 				sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
 				sendNewQuestion(room);
