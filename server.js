@@ -508,12 +508,15 @@ function randomVoting(room, correctPlayers) {
 		if (!team.IsDead) {
 			if (team.CorrectPlayers > 0) {
 				teamsAttacked++;
-				var t = getRandomTeam(room, team);
-				t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
-				teamsHurt++;
-				if (t.HP <= 0) {
-					t.IsDead = true;
-					teamsKilled++;
+				for (var j = 0; j < team.correctPlayers; j++) {
+					var t = getRandomTeam(room, team);
+					t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+					teamsHurt++;
+					if (t.HP <= 0) {
+						t.HP = 0;
+						t.IsDead = true;
+						teamsKilled++;
+					}
 				}
 			}
 		}
@@ -524,7 +527,6 @@ function randomVoting(room, correctPlayers) {
 		if (!team.IsDead) {
 			team.HP++;
 			if (team.HP > room.settings.maxTeamHP) team.HP = room.settings.maxTeamHP;
-			if (team.HP <= 0) team.IsDead = true;
 		}
 	}
 
@@ -570,7 +572,7 @@ function randomVoting(room, correctPlayers) {
 function endGame(room) {
 	sendToServer({
 		Name: "GameEndEvent",
-		Winners: [room.teams[0].Name, room.teams[1].Name, room.teams[2].Name]
+		Winners: [room.teams[0].Name, room.teams[1].Name, "Forgot the name"]
 	});
 
 	sendToAll({
