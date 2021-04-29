@@ -475,7 +475,8 @@ function questionTimeUp(room) {
 			timeSpent = Math.floor((client.questionAnsweredTime - room.currentQuestion.timeStart) / 1000);
 		}
 		if (client.questionAnsweredCorrect) {
-			getTeamByClientId(client.id).CorrectPlayers++;
+			var t = getTeamByClientId(client.id, room);
+			if (t != null) t.CorrectPlayers++;
 			correctPlayers.push(client);
 		}
 		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
@@ -542,9 +543,9 @@ function randomVoting(room, correctPlayers) {
 		sendToTeam({
 			Name: "TeamStatusChangeEvent",
 			teamInfo: {
-				greenValue: room.teams[i].HP / room.maxTeamHP,
-				limeValue: room.teams[i].HP / room.maxTeamHP,
-				orangeValue: prevHealth / room.maxTeamHP,
+				greenValue: room.teams[i].HP / room.settings.maxTeamHP,
+				limeValue: room.teams[i].HP / room.settings.maxTeamHP,
+				orangeValue: prevHealth / room.settings.maxTeamHP,
 				XP: room.teams[i].XP,
 				Rank: room.teams[i].Rank
 			}
@@ -688,6 +689,10 @@ function parseEvent(eventObject, ws, room) {
 				room.teamsAlive = room.teams.length;
 				sendToAll(eventObject, room);
 				sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
+				sendToServer({
+					Name: "StatsUpdateEvent",
+					Teams: room.teams
+				}, room);
 				sendNewQuestion(room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
