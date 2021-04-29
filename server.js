@@ -448,6 +448,11 @@ function sendEvent(eventObject, ws, room) {
 }
 
 function sendNewQuestion(room) {
+	// Reset prev round
+	for (var i = 0; i < room.teams.length; i++) {
+		room.teams[i].BeforeHealth = room.teams[i].Health;
+	}
+
 	var question = "When Hom hom?";
 	var answer = 1;
 	var timeGiven = 20;
@@ -514,7 +519,6 @@ function randomVoting(room, correctPlayers) {
 		var team = getTeamByClientId(correctPlayers[i].id, room);
 		if (!team.IsDead) {
 			team.Health++;
-			teamsHealed++;
 			if (team.Health > room.settings.maxTeamHP) team.Health = room.settings.maxTeamHP;
 			if (team.Health <= 0) team.IsDead = true;
 		}
