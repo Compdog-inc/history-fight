@@ -573,7 +573,7 @@ function endGame(room) {
 	sendToServer({
 		Name: "GameEndEvent",
 		Winners: [room.teams[0].Name, room.teams[1].Name, "Forgot the name"]
-	});
+	}, room);
 
 	sendToAll({
 		Name: "GameEndEvent",
