@@ -474,11 +474,14 @@ function questionTimeUp(room) {
 		if (client.questionAnsweredTime > 0) {
 			timeSpent = Math.floor((client.questionAnsweredTime - room.currentQuestion.timeStart) / 1000);
 		}
-		if (client.questionAnsweredCorrect)
+		if (client.questionAnsweredCorrect) {
+			getTeamByClientId(client.id).CorrectPlayers++;
 			correctPlayers.push(client);
+		}
 		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
+		client.questionAnsweredCorrect = false;
 	}
 
 	room.currentQuestionTimeout = null;
@@ -573,6 +576,10 @@ function endGame(room) {
 		Name: "GameEndEvent",
 		TeamRank: 69
 	}, room);
+
+	for (var i = 0; i < room.teams.length; i++) {
+		room.teams[i].CorrectPlayers = 0;
+    }
 }
 
 function voteTimeUp(room) {
