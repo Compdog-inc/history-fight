@@ -505,9 +505,9 @@ function randomVoting(room, correctPlayers) {
 			if (team.CorrectPlayers > 0) {
 				teamsAttacked++;
 				var t = getRandomTeam(room, team);
-				t.Health -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+				t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
 				teamsHurt++;
-				if (t.Health <= 0) {
+				if (t.HP <= 0) {
 					t.IsDead = true;
 					teamsKilled++;
 				}
@@ -518,9 +518,9 @@ function randomVoting(room, correctPlayers) {
 	for (var i = 0; i < correctPlayers.length; i++) {
 		var team = getTeamByClientId(correctPlayers[i].id, room);
 		if (!team.IsDead) {
-			team.Health++;
-			if (team.Health > room.settings.maxTeamHP) team.Health = room.settings.maxTeamHP;
-			if (team.Health <= 0) team.IsDead = true;
+			team.HP++;
+			if (team.HP > room.settings.maxTeamHP) team.HP = room.settings.maxTeamHP;
+			if (team.HP <= 0) team.IsDead = true;
 		}
 	}
 
@@ -528,12 +528,23 @@ function randomVoting(room, correctPlayers) {
 
 	for (var i = 0; i < room.teams.length; i++) {
 		if (!room.teams[i].IsDead) room.teamsAlive++;
+		var prevHealth = room.teams[i].BeforeHealth - room.teams[i].HP;
 		sendToTeam({
 			Name: "AttacksInfoEvent",
 			TeamsKilled: teamsKilled,
 			TeamsAttacked: teamsAttacked,
-			HurtDamage: room.teams[i].BeforeHealth - room.teams[i].Health,
+			HurtDamage: prevHealth,
 			Killed: room.teams[i].IsDead
+		}, room, room.teams[i]);
+		sendToTeam({
+			Name: "TeamStatusChangeEvent",
+			teamInfo: {
+				greenValue: room.teams[i].HP / room.maxTeamHP,
+				limeValue: room.teams[i].HP / room.maxTeamHP,
+				orangeValue: prevHealth / room.maxTeamHP,
+				XP: room.teams[i].XP,
+				Rank: room.teams[i].Rank
+			}
 		}, room, room.teams[i]);
 	}
 
@@ -600,7 +611,7 @@ function parseEvent(eventObject, ws, room) {
 			var player = getPlayerByClient(ws, room);
 			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
-				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], Health: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, IsDead: false, CorrectPlayers: 0 };
+				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], HP: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, IsDead: false, CorrectPlayers: 0 };
 				room.teams.push(newTeam);
 				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
