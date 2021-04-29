@@ -184,7 +184,7 @@ app.get("/themes/get", function (req, res) {
 		if (!isNaN(req.query.page)) {
 			var page = parseInt(req.query.page);
 			if (!isNaN(page) && page >= 0) {
-				var pageCount = 1;
+				var pageCount = 0;
 				if (page <= pageCount) {
 					res.status(200).send({ page: page, end: page == pageCount, themes: getThemes(page) });
 					return;
