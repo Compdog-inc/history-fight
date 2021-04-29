@@ -505,7 +505,8 @@ function randomVoting(room, correctPlayers) {
 
 	for (var i = 0; i < room.teams.length; i++) {
 		var team = room.teams[i];
-		if (!team.IsDead) {
+		if (team != null && !team.IsDead) {
+			console.log("TMC: " + team.CorrectPlayers);
 			if (team.CorrectPlayers > 0) {
 				teamsAttacked++;
 				for (var j = 0; j < team.correctPlayers; j++) {
@@ -524,7 +525,7 @@ function randomVoting(room, correctPlayers) {
 	//f
 	for (var i = 0; i < correctPlayers.length; i++) {
 		var team = getTeamByClientId(correctPlayers[i].id, room);
-		if (!team.IsDead) {
+		if (team != null && !team.IsDead) {
 			team.HP++;
 			if (team.HP > room.settings.maxTeamHP) team.HP = room.settings.maxTeamHP;
 		}
