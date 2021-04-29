@@ -506,10 +506,9 @@ function randomVoting(room, correctPlayers) {
 	for (var i = 0; i < room.teams.length; i++) {
 		var team = room.teams[i];
 		if (team != null && !team.IsDead) {
-			console.log("TMC: " + team.CorrectPlayers);
 			if (team.CorrectPlayers > 0) {
 				teamsAttacked++;
-				for (var j = 0; j < team.correctPlayers; j++) {
+				for (var j = 0; j < team.CorrectPlayers; j++) {
 					var t = getRandomTeam(room, team);
 					t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
 					teamsHurt++;
