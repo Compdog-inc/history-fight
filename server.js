@@ -562,6 +562,10 @@ function randomVoting(room, correctPlayers) {
 
 	teams.sort((a, b) => (a.XP > b.XP) ? 1 : -1);
 
+	for (var i = 0; i < teams.length; i++) {
+		room.teams[i].Rank = (i+1);
+	}
+
 	sendToServer({
 		Name: "StatsUpdateEvent",
 		Teams: teams,
