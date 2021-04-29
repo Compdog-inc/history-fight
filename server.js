@@ -476,7 +476,10 @@ function questionTimeUp(room) {
 		}
 		if (client.questionAnsweredCorrect) {
 			var t = getTeamByClientId(client.id, room);
-			if (t != null) t.CorrectPlayers++;
+			if (t != null) {
+				t.CorrectPlayers++;
+				t.XP += (1 - timeSpent / room.currentQuestion.timeGiven) * 10;
+			}
 			correctPlayers.push(client);
 		}
 		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
