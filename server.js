@@ -1,4 +1,4 @@
-process.on("uncaughtException", (e) => {
+﻿process.on("uncaughtException", (e) => {
 	console.log("Error: " + e.stack);
 });
 
@@ -125,6 +125,56 @@ function getThemeInfo(id) {
 			views: 782,
 			rating: 4.69228
 		};
+	}
+	return null;
+}
+
+function getThemeQuestion(id, index) {
+	if (id == "demo228") {
+		switch (index) {
+			case 0:
+				return {
+					question: "2 + 2 = ?",
+					answer: 3,
+					answers: ["Хомяк", "2", "7", "4"],
+					timeGiven: 10
+				};
+			case 1:
+				return {
+					question: "Когда появилась Земля?",
+					answer: 2,
+					answers: ["XIIв. до Н.Э.", "Вчера", "Давно", "Что такое Земля?"],
+					timeGiven: 15
+				};
+			case 2:
+				return {
+					question: "Сколько хвостов у кота?",
+					answer: 0,
+					answers: ["1", "5", "3", "Нету"],
+					timeGiven: 10
+				};
+			case 3:
+				return {
+					question: "Placeholder",
+					answer: 2,
+					answers: ["Hmm", "No", "Correct", "Hello"],
+					timeGiven: 10
+				};
+			case 4:
+				return {
+					question: "В каком году я умер?",
+					answer: 1,
+					answers: ["1999", "2022", "2070", "0001"],
+					timeGiven: 20
+				};
+			case 5:
+				return {
+					question: "Как далеко северный полюс?",
+					answer: 3,
+					answers: ["5 км", "Я уже там", "-50 км", "Далеко"],
+					timeGiven: 10
+				};
+        }
 	}
 	return null;
 }
@@ -465,16 +515,14 @@ function sendNewQuestion(room) {
 		room.teams[i].BeforeHealth = room.teams[i].Health;
 	}
 
-	var question = "When Hom hom?";
-	var answer = 1;
-	var timeGiven = 20;
+	var question = getThemeQuestion(room.settings.theme, randomInt(0,5));
 	room.currentQuestion = {
-		question: question,
-		answer: answer,
-		timeGiven: timeGiven,
+		question: question.question,
+		answer: question.answer,
+		timeGiven: question.timeGiven,
 		timeStart: Date.now()
 	};
-	sendToAllAlive({ Name: "QuestionEvent", SentInfo: false, TimeLeft: timeGiven, Question: question, Answers: ["Today", "Yesterday", "1934", "1345"] }, room);
+	sendToAllAlive({ Name: "QuestionEvent", SentInfo: false, TimeLeft: question.timeGiven, Question: question.question, Answers: question.answers }, room);
 	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), timeGiven * 1000);
 }
 
