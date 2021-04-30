@@ -589,7 +589,7 @@ function questionTimeUp(room) {
 
 function getRandomTeam(room, ignoreTeamId) {
 	var teamIndex = randomInt(0, room.teams.length);
-	if (room.teams[teamIndex].Uuid === ignoreTeamId)
+	if (room.teams[teamIndex].IsDead || room.teams[teamIndex].Uuid === ignoreTeamId)
 		return getRandomTeam(room, ignoreTeamId);
 	return room.teams[teamIndex];
 }
@@ -656,7 +656,7 @@ function randomVoting(room, correctPlayers) {
 		teams.push(room.teams[i]);
 	}
 
-	teams.sort((a, b) => (a.XP > b.XP) ? 1 : -1);
+	teams.sort((a, b) => (a.XP > b.XP) ? 1 : ((b.XP > a.XP) ? -1 : 0));
 
 	for (var i = 0; i < teams.length; i++) {
 		room.teams[i].Rank = (i+1);
@@ -686,7 +686,7 @@ function endGame(room) {
 		teams.push(room.teams[i]);
 	}
 
-	teams.sort((a, b) => (a.Rank > b.Rank) ? 1 : -1);
+	teams.sort((a, b) => (a.XP > b.XP) ? 1 : ((b.XP > a.XP) ? -1 : 0));
 
 	for (var i = 0; i < teams.length && i < 3; i++) {
 		winners[i] = teams[i].Name;
