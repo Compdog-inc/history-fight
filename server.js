@@ -501,6 +501,7 @@ function sendToTeam(eventObject, room, team) {
 
 function sendEvent(eventObject, ws, room) {
 	var str = JSON.stringify(eventObject);
+	console.log("MSG: " + str);
 	ws.send(str);
 	var id = getIdByClient(ws, room);
 	if (id == null)
@@ -512,8 +513,7 @@ function sendEvent(eventObject, ws, room) {
 function sendNewQuestion(room) {
 	// Reset prev round
 	for (var i = 0; i < room.teams.length; i++) {
-		console.log("Reset team: " + room.teams[i].Uuid);
-		room.teams[i].BeforeHealth = room.teams[i].Health;
+		room.teams[i].BeforeHealth = room.teams[i].HP;
 	}
 
 	for (var i = 0; i < room.teams.length; i++) {
@@ -522,14 +522,19 @@ function sendNewQuestion(room) {
 				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
 				console.log("RANDOM QUESTION INSIDE TEAM: " + JSON.stringify(question));
 				var player = getPlayerById(room.teams[i].Players[j], room);
-				console.log("PLAYER: " + player);
 				player.currentQuestion = {
 					question: question.question,
 					answer: question.answer,
 					timeGiven: 10,
 					timeStart: Date.now()
 				};
-				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: question.question, Answers: question.answers }, player.client, room);
+				sendEvent({
+					Name: "QuestionEvent",
+					SentInfo: false,
+					TimeLeft: 10,
+					Question: question.question,
+					Answers: question.answers
+				}, player.client, room);
 			}
 		} else {
 			var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
@@ -542,9 +547,14 @@ function sendNewQuestion(room) {
 			};
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
 				var player = getPlayerById(room.teams[i].Players[j], room);
-				console.log("PLAYER: " + player);
 				player.currentQuestion = q;
-				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: q.question, Answers: q.answers }, player.client, room);
+				sendEvent({
+					Name: "QuestionEvent",
+					SentInfo: false,
+					TimeLeft: 10,
+					Question: q.question,
+					Answers: q.answers
+				}, player.client, room);
 			}
 		}
 	}
