@@ -558,6 +558,10 @@ function sendNewQuestion(room) {
 	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
 }
 
+function calcAddXP(timeSpent, timeGiven, min, max) {
+	return (1 - timeSpent / timeGiven) * (max - min) + min;
+}
+
 function questionTimeUp(room) {
 	var correctPlayers = [];
 	for (var i = 0; i < room.clients.length; i++) {
@@ -570,7 +574,7 @@ function questionTimeUp(room) {
 			var t = getTeamByClientId(client.id, room);
 			if (t != null) {
 				t.CorrectPlayers++;
-				t.XP += (1 - timeSpent / 10) * 10;
+				t.XP += calcAddXP(timeSpent, 10, 1, 10);
 			}
 			correctPlayers.push(client);
 		}
