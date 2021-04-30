@@ -659,7 +659,7 @@ function randomVoting(room, correctPlayers) {
 	teams.sort((a, b) => (a.XP > b.XP) ? -1 : ((b.XP > a.XP) ? 1 : 0));
 
 	for (var i = 0; i < teams.length; i++) {
-		room.teams[i].Rank = (i+1);
+		teams[i].Rank = (i+1);
 	}
 
 	sendToServer({
