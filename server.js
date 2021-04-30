@@ -606,6 +606,10 @@ function randomVoting(room, correctPlayers) {
 	var teamsAttacked = 0;
 	var teamsHurt = 0;
 
+	room.teamsAlive = 0;
+	for (var i = 0; i < room.teams.length; i++)
+		if (!room.teams[i].IsDead) room.teamsAlive++;
+
 	for (var i = 0; i < room.teams.length; i++) {
 		var team = room.teams[i];
 		if (team != null && !team.IsDead) {
@@ -619,6 +623,7 @@ function randomVoting(room, correctPlayers) {
 						if (t.HP <= 0) {
 							t.HP = 0;
 							t.IsDead = true;
+							room.teamsAlive--;
 							teamsKilled++;
 						}
 					}
