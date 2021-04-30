@@ -559,7 +559,7 @@ function sendNewQuestion(room) {
 	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
 }
 
-function calcAddXP(timeSpent, timeGiven, min, max) {
+function calcPoints(timeSpent, timeGiven, min, max) {
 	return (1 - timeSpent / timeGiven) * (max - min) + min;
 }
 
@@ -575,7 +575,7 @@ function questionTimeUp(room) {
 			var t = getTeamByClientId(client.id, room);
 			if (t != null) {
 				t.CorrectPlayers++;
-				t.XP += calcAddXP(timeSpent, 10, 1, 10);
+				t.XP += calcPoints(timeSpent, 10, 1, 10);
 			}
 			correctPlayers.push(client);
 		}
@@ -619,15 +619,14 @@ function randomVoting(room, correctPlayers) {
 				for (var j = 0; j < team.CorrectPlayers; j++) {
 					var t = getRandomTeam(room, team.Uuid);
 					if (t != null) {
-						var damageAmount = team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
-						console.log("Damaging " + damageAmount);
-						t.HP -= damageAmount;
+						t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
 						teamsHurt++;
 						if (t.HP <= 0) {
 							t.HP = 0;
 							t.IsDead = true;
 							room.teamsAlive--;
 							teamsKilled++;
+							break;
 						}
 					}
 				}
