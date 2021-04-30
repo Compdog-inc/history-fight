@@ -522,7 +522,7 @@ function sendNewQuestion(room) {
 				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
 				console.log("RANDOM QUESTION INSIDE TEAM: " + JSON.stringify(question));
 				var player = getPlayerById(room.teams[i].Players[j], room);
-				console.log("PLAYER: " + JSON.stringify(player));
+				console.log("PLAYER: " + player);
 				player.currentQuestion = {
 					question: question.question,
 					answer: question.answer,
@@ -542,7 +542,7 @@ function sendNewQuestion(room) {
 			};
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
 				var player = getPlayerById(room.teams[i].Players[j], room);
-				console.log("PLAYER: " + JSON.stringify(player));
+				console.log("PLAYER: " + player);
 				player.currentQuestion = q;
 				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: q.question, Answers: q.answers }, player.client, room);
 			}
