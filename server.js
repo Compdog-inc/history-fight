@@ -512,6 +512,7 @@ function sendEvent(eventObject, ws, room) {
 function sendNewQuestion(room) {
 	// Reset prev round
 	for (var i = 0; i < room.teams.length; i++) {
+		console.log("Reset team: " + room.teams[i].Uuid);
 		room.teams[i].BeforeHealth = room.teams[i].Health;
 	}
 
@@ -519,7 +520,9 @@ function sendNewQuestion(room) {
 		if (room.settings.randomizeQuestionsInsideTeam) {
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
 				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
+				console.log("RANDOM QUESTION INSIDE TEAM: " + JSON.stringify(question));
 				var player = getPlayerById(room.teams[i].Players[j], room);
+				console.log("PLAYER: " + JSON.stringify(player));
 				player.currentQuestion = {
 					question: question.question,
 					answer: question.answer,
@@ -530,6 +533,7 @@ function sendNewQuestion(room) {
 			}
 		} else {
 			var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
+			console.log("RANDOM QUESTION: " + JSON.stringify(question));
 			var q = {
 				question: question.question,
 				answer: question.answer,
@@ -538,6 +542,7 @@ function sendNewQuestion(room) {
 			};
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
 				var player = getPlayerById(room.teams[i].Players[j], room);
+				console.log("PLAYER: " + JSON.stringify(player));
 				player.currentQuestion = q;
 				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: q.question, Answers: q.answers }, player.client, room);
 			}
