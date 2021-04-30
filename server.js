@@ -501,7 +501,6 @@ function sendToTeam(eventObject, room, team) {
 
 function sendEvent(eventObject, ws, room) {
 	var str = JSON.stringify(eventObject);
-	console.log("MSG: " + str);
 	ws.send(str);
 	var id = getIdByClient(ws, room);
 	if (id == null)
@@ -520,7 +519,6 @@ function sendNewQuestion(room) {
 		if (room.settings.randomizeQuestionsInsideTeam) {
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
 				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
-				console.log("RANDOM QUESTION INSIDE TEAM: " + JSON.stringify(question));
 				var player = getPlayerById(room.teams[i].Players[j], room);
 				player.currentQuestion = {
 					question: question.question,
@@ -538,7 +536,6 @@ function sendNewQuestion(room) {
 			}
 		} else {
 			var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
-			console.log("RANDOM QUESTION: " + JSON.stringify(question));
 			var q = {
 				question: question.question,
 				answer: question.answer,
