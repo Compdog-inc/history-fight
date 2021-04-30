@@ -656,7 +656,7 @@ function randomVoting(room, correctPlayers) {
 		teams.push(room.teams[i]);
 	}
 
-	teams.sort((a, b) => (a.XP > b.XP) ? 1 : ((b.XP > a.XP) ? -1 : 0));
+	teams.sort((a, b) => (a.XP > b.XP) ? -1 : ((b.XP > a.XP) ? 1 : 0));
 
 	for (var i = 0; i < teams.length; i++) {
 		room.teams[i].Rank = (i+1);
@@ -686,7 +686,7 @@ function endGame(room) {
 		teams.push(room.teams[i]);
 	}
 
-	teams.sort((a, b) => (a.XP > b.XP) ? 1 : ((b.XP > a.XP) ? -1 : 0));
+	teams.sort((a, b) => (a.XP > b.XP) ? -1 : ((b.XP > a.XP) ? 1 : 0));
 
 	for (var i = 0; i < teams.length && i < 3; i++) {
 		winners[i] = teams[i].Name;
