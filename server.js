@@ -552,13 +552,13 @@ function questionTimeUp(room) {
 		var client = room.clients[i];
 		var timeSpent = -1;
 		if (client.questionAnsweredTime > 0) {
-			timeSpent = Math.floor((client.questionAnsweredTime - room.currentQuestion.timeStart) / 1000);
+			timeSpent = Math.floor((client.questionAnsweredTime - client.currentQuestion.timeStart) / 1000);
 		}
 		if (client.questionAnsweredCorrect) {
 			var t = getTeamByClientId(client.id, room);
 			if (t != null) {
 				t.CorrectPlayers++;
-				t.XP += (1 - timeSpent / room.currentQuestion.timeGiven) * 10;
+				t.XP += (1 - timeSpent / 10) * 10;
 			}
 			correctPlayers.push(client);
 		}
@@ -566,6 +566,7 @@ function questionTimeUp(room) {
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
 		client.questionAnsweredCorrect = false;
+		client.currentQuestion = null;
 	}
 
 	room.currentQuestionTimeout = null;
@@ -786,12 +787,15 @@ function parseEvent(eventObject, ws, room) {
 				ws.send(INT_RESPONSE_INVALID);
 			break;
 		case "QuestionEvent":
-			if (room.started && room.currentQuestion != null) {
+			if (room.started) {
 				var player = getPlayerByClient(ws, room);
-				if (player.questionAnsweredTime <= 0) {
-					player.questionAnsweredTime = Date.now();
-					player.questionAnsweredCorrect = eventObject.Answer === room.currentQuestion.answer;
-				} else
+				if (player.currentQuestion != null) {
+					if (player.questionAnsweredTime <= 0) {
+						player.questionAnsweredTime = Date.now();
+						player.questionAnsweredCorrect = eventObject.Answer === player.currentQuestion.answer;
+					} else
+						ws.send(INT_RESPONSE_INVALID);
+				} else 
 					ws.send(INT_RESPONSE_INVALID);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
