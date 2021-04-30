@@ -549,8 +549,8 @@ function sendNewQuestion(room) {
 					Name: "QuestionEvent",
 					SentInfo: false,
 					TimeLeft: 10,
-					Question: q.question,
-					Answers: q.answers
+					Question: question.question,
+					Answers: question.answers
 				}, player.client, room);
 			}
 		}
