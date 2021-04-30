@@ -592,10 +592,13 @@ function questionTimeUp(room) {
 }
 
 function getRandomTeam(room, ignoreTeamId) {
-	var teamIndex = randomInt(0, room.teams.length);
-	if (room.teams[teamIndex].IsDead || room.teams[teamIndex].Uuid === ignoreTeamId)
-		return getRandomTeam(room, ignoreTeamId);
-	return room.teams[teamIndex];
+	if (room.teamsAlive > 0) {
+		var teamIndex = randomInt(0, room.teams.length);
+		if (room.teams[teamIndex].IsDead || room.teams[teamIndex].Uuid === ignoreTeamId)
+			return getRandomTeam(room, ignoreTeamId);
+		return room.teams[teamIndex];
+	} else
+		return null;
 }
 
 function randomVoting(room, correctPlayers) {
@@ -610,12 +613,14 @@ function randomVoting(room, correctPlayers) {
 				teamsAttacked++;
 				for (var j = 0; j < team.CorrectPlayers; j++) {
 					var t = getRandomTeam(room, team);
-					t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
-					teamsHurt++;
-					if (t.HP <= 0) {
-						t.HP = 0;
-						t.IsDead = true;
-						teamsKilled++;
+					if (t != null) {
+						t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+						teamsHurt++;
+						if (t.HP <= 0) {
+							t.HP = 0;
+							t.IsDead = true;
+							teamsKilled++;
+						}
 					}
 				}
 			}
