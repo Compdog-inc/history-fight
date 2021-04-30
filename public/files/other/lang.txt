@@ -13,7 +13,7 @@ game.ifkilled.funny: <sprite=1><color=red>И нас схомячили...</color
 gameresp.correct: <color=green>Вы ответили правильно!</color>
 gameresp.correct.funny: <color=green>Молодец, как солёный огурец!</color>
 gameresp.incorrect: <color=red>Вы ответили неправильно :(</color>
-gameresp.incorrect.funny: <color=red>Ну, в следуюший раз!</color>
+gameresp.incorrect.funny: <color=red>Ну, в следующий раз!</color>
 game.teaminfo: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>{1}-е место</color>
 game.teaminfo.unknownrank: <color=#ba3cd1>{0} XP</color> <b>|</b> <color=#4e8ee8>нету места</color>
 game.teamhealth: {0} HP
