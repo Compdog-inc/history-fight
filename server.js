@@ -513,6 +513,7 @@ function sendNewQuestion(room) {
 	// Reset prev round
 	for (var i = 0; i < room.teams.length; i++) {
 		room.teams[i].BeforeHealth = room.teams[i].HP;
+		room.teams[i].CorrectPlayers = 0;
 	}
 
 	for (var i = 0; i < room.teams.length; i++) {
