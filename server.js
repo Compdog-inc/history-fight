@@ -616,9 +616,11 @@ function randomVoting(room, correctPlayers) {
 			if (team.CorrectPlayers > 0) {
 				teamsAttacked++;
 				for (var j = 0; j < team.CorrectPlayers; j++) {
-					var t = getRandomTeam(room, team);
+					var t = getRandomTeam(room, team.Uuid);
 					if (t != null) {
-						t.HP -= team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+						var damageAmount = team.CorrectPlayers / team.CurrentMemberCount * Math.ceil(room.settings.maxTeamHP / 20);
+						console.log("Damaging " + damageAmount);
+						t.HP -= damageAmount;
 						teamsHurt++;
 						if (t.HP <= 0) {
 							t.HP = 0;
