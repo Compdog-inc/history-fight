@@ -162,9 +162,9 @@ function getThemeQuestion(id, index) {
 				};
 			case 4:
 				return {
-					question: "В каком году я умер?",
+					question: "В каком году хомяк схомячил еду?",
 					answer: 1,
-					answers: ["1999", "2022", "2070", "0001"],
+					answers: ["1999", "2021", "2070", "0001"],
 					timeGiven: 20
 				};
 			case 5:
@@ -203,7 +203,7 @@ app.get("*", function (req, res) {
 	<title>History Fight</title>
 </head>
 <body>
-	<p>Oh hi! Didn't think you would come here... Here's a super cool <a href="http://www.compdog.tk">website</a>!</p>
+	<p>Oh hi! Didn't think you would come here... Here's a super cool <a href="http://www.compdog.ga">website</a>!</p>
 </body>
 </html>`);
 });
@@ -260,7 +260,7 @@ wss.on('connection', (ws, req) => {
 
 		var id = generateId();
 
-		var client = { client: ws, id: id, inTeam: false, shouldClose: false, questionAnsweredTime: 0, questionAnsweredCorrect: false };
+		var client = { client: ws, id: id, inTeam: false, shouldClose: false, currentQuestion: null, questionAnsweredTime: 0, questionAnsweredCorrect: false };
 		room.clients.push(client);
 
 		console.log(`New Connection '${id}' room '${room.code}'`);
@@ -515,15 +515,35 @@ function sendNewQuestion(room) {
 		room.teams[i].BeforeHealth = room.teams[i].Health;
 	}
 
-	var question = getThemeQuestion(room.settings.theme, randomInt(0,5));
-	room.currentQuestion = {
-		question: question.question,
-		answer: question.answer,
-		timeGiven: question.timeGiven,
-		timeStart: Date.now()
-	};
-	sendToAllAlive({ Name: "QuestionEvent", SentInfo: false, TimeLeft: question.timeGiven, Question: question.question, Answers: question.answers }, room);
-	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), question.timeGiven * 1000);
+	for (var i = 0; i < room.teams.length; i++) {
+		if (room.settings.randomizeQuestionsInsideTeam) {
+			for (var j = 0; j < room.teams[i].Players.length; j++) {
+				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
+				var player = getPlayerById(room.teams[i].Players[j], room);
+				player.currentQuestion = {
+					question: question.question,
+					answer: question.answer,
+					timeGiven: 10,
+					timeStart: Date.now()
+				};
+				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: question.question, Answers: question.answers }, player.client, room);
+			}
+		} else {
+			var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
+			var q = {
+				question: question.question,
+				answer: question.answer,
+				timeGiven: 10,
+				timeStart: Date.now()
+			};
+			for (var j = 0; j < room.teams[i].Players.length; j++) {
+				var player = getPlayerById(room.teams[i].Players[j], room);
+				player.currentQuestion = q;
+				sendEvent({ Name: "QuestionEvent", SentInfo: false, TimeLeft: 10, Question: q.question, Answers: q.answers }, player.client, room);
+			}
+		}
+	}
+	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
 }
 
 function questionTimeUp(room) {
@@ -706,7 +726,6 @@ function parseEvent(eventObject, ws, room) {
 					server: ws,
 					teamsAlive: 0,
 					started: false,
-					currentQuestion: null,
 					currentQuestionTimeout: null,
 					currentVoteTimeout: null,
 					settings: eventObject.settings
