@@ -647,6 +647,7 @@ function randomVoting(room, correctPlayers) {
 	for (var i = 0; i < room.teams.length; i++) {
 		if (!room.teams[i].IsDead) room.teamsAlive++;
 		var prevHealth = room.teams[i].BeforeHealth - room.teams[i].HP;
+		if (prevHealth < 0) prevHealth = 0;
 		sendToTeam({
 			Name: "AttacksInfoEvent",
 			TeamsKilled: teamsKilled,
