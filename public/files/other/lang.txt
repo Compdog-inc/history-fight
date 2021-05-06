@@ -6,12 +6,12 @@ netresp.notfound: Игра не найдена
 netresp.notfound.funny: Здесь пусто
 netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
-pgscl.0: <color=#E0C79E>На старт,</color>
-pgscl.1: <color=#D0D99F>Внимание...</color>
-pgscl.2: <color=#AEE7BE>Марш!</color>
-pgscl.0.funny: <color=#E0C79E>Ready?</color>
-pgscl.1.funny: <color=#D0D99F>Set!?</color>
-pgscl.2.funny: <color=#AEE7BE>Go!</color>
+pgscl.0: <color=#e0c79e>На старт,</color>
+pgscl.1: <color=#d0d99f>Внимание...</color>
+pgscl.2: <color=#aee7be>Марш!</color>
+pgscl.0.funny: <color=#ff0000>Ready?</color>
+pgscl.1.funny: <color=#ffff00>Set!?</color>
+pgscl.2.funny: <color=#00ff00>Go!</color>
 game.attackinfo: Побито команд: <color=#2dfcc5>{0}</color><sprite=3>%n%Разбито команд: <color=#fcd62f>{1}</color><sprite=7>%n%Получено урона: <color=#f26060>{2}</color><sprite=4>
 game.attackinfo.funny: Похомячено: <color=#2dfcc5>{0}</color><sprite=3>%n%Схомячено: <color=#fcd62f>{1}</color><sprite=7>%n%Вхомячено (нам): <color=#f26060>{2}</color><sprite=4>
 game.ifkilled: <sprite=1><color=red>И нас убили...</color><sprite=1>
