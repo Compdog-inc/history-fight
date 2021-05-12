@@ -186,7 +186,8 @@ app.get("/themes/get", function (req, res) {
 					getThemes(page).then((themes) => {
 						res.status(200).send({ page: page, end: page == pageCount, themes: themes });
 					}).catch((err) => {
-						res.status(400).send("Bad Request! Make sure page is in range.");	
+						console.log("E: " + err);
+						res.status(500).send("Internal Server Error! (Check the logs)");	
 					});
 					return;
 				}
