@@ -6,6 +6,12 @@ netresp.notfound: Игра не найдена
 netresp.notfound.funny: Здесь пусто
 netresp.started: Игра уже началась
 netresp.started.funny: Поезд ушёл...
+pgscl.0: <color=#e0c79e>На старт,</color>
+pgscl.1: <color=#d0d99f>Внимание...</color>
+pgscl.2: <color=#aee7be>Марш!</color>
+pgscl.0.funny: <color=#ff0000>Ready?</color>
+pgscl.1.funny: <color=#ffff00>Set!?</color>
+pgscl.2.funny: <color=#00ff00>Go!</color>
 game.attackinfo: Побито команд: <color=#2dfcc5>{0}</color><sprite=3>%n%Разбито команд: <color=#fcd62f>{1}</color><sprite=7>%n%Получено урона: <color=#f26060>{2}</color><sprite=4>
 game.attackinfo.funny: Похомячено: <color=#2dfcc5>{0}</color><sprite=3>%n%Схомячено: <color=#fcd62f>{1}</color><sprite=7>%n%Вхомячено (нам): <color=#f26060>{2}</color><sprite=4>
 game.ifkilled: <sprite=1><color=red>И нас убили...</color><sprite=1>
@@ -41,7 +47,7 @@ msgbox.btn.yes: Да
 msgbox.btn.yes.funny: Ага
 msgbox.btn.no: Нет
 msgbox.btn.no.funny: Неа
-gameend.rankinfo.place1: <sprite=5>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u><b>#1</b></u></color> <color=#f1f4d7><u>место!!!</u></color>
+gameend.rankinfo.place1: <sprite=2>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u><b>#1</b></u></color> <color=#f1f4d7><u>место!!!</u></color>
 gameend.rankinfo.place2: <sprite=5>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u>#2</u></color> <color=#f1f4d7><u>место!</u></color>
 gameend.rankinfo.place3: <sprite=6>%n%<color=#f4e6d7>Игра окончена :)</color>%n%<color=#f1f4d7><u>У вас </u></color><color=#d5f2c1><u>#3</u></color> <color=#f1f4d7><u>место!</u></color>
 gameend.rankinfo: <color=#f4e6d7>Игра окончена!</color>%n%<color=#f1f4d7><u>Ваше место: </u></color><color=#d5f2c1><u>#{0}</u>
