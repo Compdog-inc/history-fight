@@ -105,8 +105,8 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 function getThemes(page) {
 	return new Promise((resolve, reject) => {
 		var result = [];
-		client.query('SELECT * FROM public."user-themes"', (err, res) => {
-			if (err) { console.log("Error getting themes: " + err.stack); reject(err); return; }
+		pclient.query('SELECT * FROM public."user-themes"', (err, res) => {
+			if (err) { console.log("Error getting themes: " + err); reject(err); return; }
 			for (let row of res.rows) {
 				result.push(row);
 			}
@@ -117,8 +117,8 @@ function getThemes(page) {
 
 function getThemeInfo(id) {
 	return new Promise((resolve, reject) => {
-		client.query("SELECT * FROM public.\"user-themes\" WHERE id = '" + id + "'", (err, res) => {
-			if (err) { console.log("Error getting theme: " + err.stack); reject(err); return; }
+		pclient.query("SELECT * FROM public.\"user-themes\" WHERE id = '" + id + "'", (err, res) => {
+			if (err) { console.log("Error getting theme: " + err); reject(err); return; }
 			if (res.rows.length > 0)
 				resolve(res.rows[0]);
 			resolve(null);
@@ -186,7 +186,6 @@ app.get("/themes/get", function (req, res) {
 					getThemes(page).then((themes) => {
 						res.status(200).send({ page: page, end: page == pageCount, themes: themes });
 					}).catch((err) => {
-						console.log("E: " + err);
 						res.status(500).send("Internal Server Error! (Check the logs)");	
 					});
 					return;
