@@ -32,7 +32,7 @@ const CLOSE_REASON_GAME_STARTED		= 2;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const client = new Client({
+const pclient = new Client({
 	connectionString: process.env.DATABASE_URL,
 	ssl: {
 		rejectUnauthorized: false
@@ -103,34 +103,31 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 });
 
 function getThemes(page) {
-	var result = [];
-	result.push({
-		id: "demo228",
-		display: "Demo Theme",
-		description: "This is a demo theme. Soon we will add user themes.",
-		modtime: 1619723905190,
-		views: 782,
-		rating: 4.69228
+	return new Promise((resolve, reject) => {
+		var result = [];
+		client.query('SELECT * FROM public."user-themes"', (err, res) => {
+			if (err) { console.log("Error getting themes: " + err.stack); reject(err); return; }
+			for (let row of res.rows) {
+				result.push(row);
+			}
+			resolve(result);
+		});
 	});
-	return result;
 }
 
 function getThemeInfo(id) {
-	if (id == "demo228") {
-		return {
-			id: "demo228",
-			display: "Demo Theme",
-			description: "This is a demo theme. Soon we will add user themes.",
-			modtime: 1619723905190,
-			views: 782,
-			rating: 4.69228
-		};
-	}
-	return null;
+	return new Promise((resolve, reject) => {
+		client.query("SELECT * FROM public.\"user-themes\" WHERE id = '" + id + "'", (err, res) => {
+			if (err) { console.log("Error getting theme: " + err.stack); reject(err); return; }
+			if (res.rows.length > 0)
+				resolve(res.rows[0]);
+			resolve(null);
+		});
+	});
 }
 
 function getThemeQuestion(id, index) {
-	if (id == "demo228") {
+	if (id == "demo228" || true) {
 		switch (index) {
 			case 0:
 				return {
@@ -186,7 +183,11 @@ app.get("/themes/get", function (req, res) {
 			if (!isNaN(page) && page >= 0) {
 				var pageCount = 0;
 				if (page <= pageCount) {
-					res.status(200).send({ page: page, end: page == pageCount, themes: getThemes(page) });
+					getThemes(page).then((themes) => {
+						res.status(200).send({ page: page, end: page == pageCount, themes: themes });
+					}).catch((err) => {
+						res.status(400).send("Bad Request! Make sure page is in range.");	
+					});
 					return;
 				}
 			}
@@ -805,13 +806,23 @@ function parseEvent(eventObject, ws, room) {
 				for (var i = 0; i < room.clients.length; i++)
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				room.teamsAlive = room.teams.length;
-				sendToAll(eventObject, room);
-				sendToServer({ Name: "GameStartEvent", Theme: getThemeInfo(room.settings.theme).display, Teams: room.teams }, room);
-				sendToServer({
-					Name: "StatsUpdateEvent",
-					Teams: room.teams
-				}, room);
-				sendNewQuestion(room);
+				getThemeInfo(room.settings.theme).then((theme) => {
+					sendToAll(eventObject, room);
+					sendToServer({ Name: "GameStartEvent", Theme: theme.display, Teams: room.teams }, room);
+					sendToServer({
+						Name: "StatsUpdateEvent",
+						Teams: room.teams
+					}, room);
+					sendNewQuestion(room);
+				}).catch((err) => {
+					sendToAll(eventObject, room);
+					sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
+					sendToServer({
+						Name: "StatsUpdateEvent",
+						Teams: room.teams
+					}, room);
+					sendNewQuestion(room);
+				});
 			} else
 				ws.send(INT_RESPONSE_INVALID);
 			break;
@@ -832,7 +843,7 @@ function parseEvent(eventObject, ws, room) {
 	}
 }
 
-client.connect();
+pclient.connect();
 
 server.listen(process.env.PORT || 3000,
 	() => {
