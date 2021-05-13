@@ -65,6 +65,11 @@ class Theme {
 
 };
 
+/**A user theme question*/
+class ThemeQuestion {
+
+};
+
 /**A room that hosts a game*/
 class Room {
 
@@ -83,6 +88,7 @@ class Room {
 		this.currentQuestionTimeout = null;
 		this.currentVoteTimeout = null;
 		this.settings = settings;
+		this.questionCount = 0;
 	}
 
 	/**
@@ -192,6 +198,18 @@ class Room {
 	set settings(value) {
 		this._settings = value;
 	}
+
+	/**
+	 * The number of questions in current theme
+	 * @type {Number}
+	 */
+	get questionCount() {
+		return this._questionCount;
+	}
+
+	set questionCount(value) {
+		this._questionCount = value;
+	}
 };
 
 /**
@@ -297,7 +315,8 @@ function getThemeInfo(id) {
 			if (err) { console.log("Error getting theme: " + err); reject(err); return; }
 			if (res.rows.length > 0)
 				resolve(res.rows[0]);
-			resolve(null);
+			else
+				resolve(null);
 		});
 	});
 }
@@ -306,61 +325,24 @@ function getThemeInfo(id) {
  * Gets theme questions by its id
  * @param {string} id the themes id
  * @param {Number} index the index of the question
+ * @returns {Promise<ThemeQuestion|null>} the promise that has the theme question
  */
 function getThemeQuestion(id, index) {
-	if (id == "demo228" || true) {
-		switch (index) {
-			case 0:
-				return {
-					question: "2 + 2 = ?",
-					answer: 3,
-					answers: ["Хомяк", "2", "7", "4"],
-					answerType: 0,
-					timeGiven: 10
-				};
-			case 1:
-				return {
-					question: "Когда появилась Земля?",
-					answer: 2,
-					answers: ["XIIв. до Н.Э.", "Вчера", "Давно", "Что такое Земля?"],
-					answerType: 0,
-					timeGiven: 15
-				};
-			case 2:
-				return {
-					question: "Сколько хвостов у кота?",
-					answer: 0,
-					answers: ["1", "5", "3", "Нету"],
-					answerType: 0,
-					timeGiven: 10
-				};
-			case 3:
-				return {
-					question: "Placeholder",
-					answer: 2,
-					answers: ["Hmm", "No", "Correct", "Hello"],
-					answerType: 0,
-					timeGiven: 10
-				};
-			case 4:
-				return {
-					question: "В каком году хомяк схомячил еду?",
-					answer: 1,
-					answers: ["1999", "2021", "2070", "0001"],
-					answerType: 0,
-					timeGiven: 20
-				};
-			case 5:
-				return {
-					question: "Как далеко северный полюс?",
-					answer: 3,
-					answers: ["5 км", "Я уже там", "-50 км", "Далеко"],
-					answerType: 0,
-					timeGiven: 10
-				};
-        }
-	}
-	return null;
+	return new Promise((resolve, reject) => {
+		pclient.query("SELECT * FROM public.\"theme-game\" WHERE id = '" + id + "'", (err, res) => {
+			if (err) { console.log("Error getting theme question: " + err); reject(err); return; }
+			if (res.rows.length > 0) {
+				var questions = res.rows[0].questions;
+				if (questions.length > 0 && index < questions.length) {
+					resolve(JSON.parse(questions[index]));
+				}
+				else
+					resolve(null);
+			}
+			else
+				resolve(null);
+		});
+	});
 }
 
 app.get("/themes/get", function (req, res) {
@@ -847,7 +829,7 @@ function sendNewQuestion(room) {
 	for (var i = 0; i < room.teams.length; i++) {
 		if (room.settings.randomizeQuestionsInsideTeam) {
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
-				var question = getThemeQuestion(room.settings.theme, randomInt(0, 5));
+				var question = getThemeQuestion(room.settings.theme, randomInt(0, room.questionCount));
 				var player = getPlayerById(room.teams[i].Players[j], room);
 				player.currentQuestion = {
 					question: question.question,
@@ -1161,6 +1143,7 @@ function parseEvent(eventObject, ws, room) {
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				room.teamsAlive = room.teams.length;
 				getThemeInfo(room.settings.theme).then((theme) => {
+					room.questionCount = theme.questions;
 					sendToAll(eventObject, room);
 					sendToServer({ Name: "GameStartEvent", Theme: theme.display, Teams: room.teams }, room);
 					sendToServer({
