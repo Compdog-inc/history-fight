@@ -832,6 +832,7 @@ function sendNewQuestion(room) {
 				var tmpI = i;
 				var tmpJ = j;
 				getThemeQuestion(room.settings.theme, randomInt(0, room.questionCount)).then((question) => {
+					console.log("I: " + tmpI + ", J: " + tmpJ);
 					var player = getPlayerById(room.teams[tmpI].Players[tmpJ], room);
 					player.currentQuestion = {
 						question: question.question,
@@ -843,6 +844,7 @@ function sendNewQuestion(room) {
 						Name: "QuestionEvent",
 						SentInfo: false,
 						TimeLeft: 10,
+						GlobalTimeLeft: 10,
 						Question: question.question,
 						Answers: question.answers,
 						AnswerType: question.answerType,
@@ -869,6 +871,7 @@ function sendNewQuestion(room) {
 						Name: "QuestionEvent",
 						SentInfo: false,
 						TimeLeft: 10,
+						GlobalTimeLeft: 10,
 						Question: question.question,
 						Answers: question.answers,
 						AnswerType: question.answerType,
