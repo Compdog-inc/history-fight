@@ -1180,7 +1180,7 @@ function parseEvent(eventObject, ws, room) {
 				if (player.currentQuestion != null) {
 					if (player.questionAnsweredTime <= 0) {
 						player.questionAnsweredTime = Date.now();
-						player.questionAnsweredCorrect = eventObject.Answer == player.currentQuestion.answer;
+						player.questionAnsweredCorrect = eventObject.Answer.toString() == player.currentQuestion.answer.toString();
 					} else
 						ws.send(INT_RESPONSE_INVALID);
 				} else 
