@@ -382,6 +382,20 @@ function checkThemeAuth(id, auth) {
 	});
 }
 
+/**
+ * Inserts a theme
+ * @param {Theme} theme
+ * @param {ThemeQuestion[]} questions
+ * @param {string} auth
+ * @returns {Promise} the promise
+ */
+function insertTheme(theme, questions, auth) {
+	return new Promise((resolve, reject) => {
+		// Placeholder
+		resolve();
+	});
+}
+
 app.get("/themes/get", function (req, res) {
 	if (req.query.page) {
 		if (!isNaN(req.query.page)) {
@@ -405,7 +419,11 @@ app.get("/themes/get", function (req, res) {
 
 app.post("/themes/create", jsonParser, function (req, res) {
 	if (req.body && req.body.auth) {
-		res.status(200).send({ id: 'hom' });
+		insertTheme({}, [], req.body.auth).then(() => {
+			res.status(200).send({ id: 'hom' });
+		}).catch(() => {
+			res.status(500).send("Internal Server Error! (Check the logs)");
+		});
 	} else
 		res.status(400).send("Bad Request! Please send a valid auth code.");
 });
