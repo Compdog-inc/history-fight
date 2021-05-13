@@ -829,8 +829,8 @@ function sendNewQuestion(room) {
 	for (var i = 0; i < room.teams.length; i++) {
 		if (room.settings.randomizeQuestionsInsideTeam) {
 			for (var j = 0; j < room.teams[i].Players.length; j++) {
-				var id = room.teams[i].Players[j];
 				(function () {
+					var id = room.teams[i].Players[j];
 					getThemeQuestion(room.settings.theme, randomInt(0, room.questionCount)).then((question) => {
 						var player = getPlayerById(id, room);
 						console.log("PLAYER: " + player + ", ID: " + id);
@@ -867,7 +867,7 @@ function sendNewQuestion(room) {
 						timeStart: Date.now()
 					};
 					for (var j = 0; j < room.teams[i].Players.length; j++) {
-						var player = getPlayerById(room.teams[i].Players[j], room);
+						var player = getPlayerById(room.teams[tmpI].Players[j], room);
 						player.currentQuestion = q;
 						sendEvent({
 							Name: "QuestionEvent",
