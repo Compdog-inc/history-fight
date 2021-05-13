@@ -918,7 +918,6 @@ function questionTimeUp(room) {
 			}
 			correctPlayers.push(client);
 		}
-		console.log(client.questionAnsweredCorrect);
 		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
@@ -1181,7 +1180,7 @@ function parseEvent(eventObject, ws, room) {
 				if (player.currentQuestion != null) {
 					if (player.questionAnsweredTime <= 0) {
 						player.questionAnsweredTime = Date.now();
-						player.questionAnsweredCorrect = eventObject.Answer === player.currentQuestion.answer;
+						player.questionAnsweredCorrect = eventObject.Answer == player.currentQuestion.answer;
 					} else
 						ws.send(INT_RESPONSE_INVALID);
 				} else 
