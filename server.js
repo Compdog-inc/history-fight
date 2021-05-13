@@ -1116,7 +1116,7 @@ function parseEvent(eventObject, ws, room) {
 					}
 				});
 				rooms.push(room);
-				eventObject.code = rmCode;
+				eventObject.code = room.code;
 				sendEvent(eventObject, ws, room);
 			} else
 				ws.send(INT_RESPONSE_INVALID);
