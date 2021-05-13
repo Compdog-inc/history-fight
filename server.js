@@ -854,7 +854,9 @@ function sendNewQuestion(room) {
 					SentInfo: false,
 					TimeLeft: 10,
 					Question: question.question,
-					Answers: question.answers
+					Answers: question.answers,
+					AnswerType: question.answerType,
+					QuestionImageUrl: question.questionImageUrl
 				}, player.client, room);
 			}
 		} else {
@@ -873,7 +875,9 @@ function sendNewQuestion(room) {
 					SentInfo: false,
 					TimeLeft: 10,
 					Question: question.question,
-					Answers: question.answers
+					Answers: question.answers,
+					AnswerType: question.answerType,
+					QuestionImageUrl: question.questionImageUrl
 				}, player.client, room);
 			}
 		}
@@ -922,7 +926,6 @@ function questionTimeUp(room) {
 	}
 
 	room.currentQuestionTimeout = null;
-	room.currentQuestion = null;
 
 	room.currentVoteTimeout = setTimeout(() => randomVoting(room, correctPlayers), 3000);
 }
@@ -1177,6 +1180,7 @@ function parseEvent(eventObject, ws, room) {
 				if (player.currentQuestion != null) {
 					if (player.questionAnsweredTime <= 0) {
 						player.questionAnsweredTime = Date.now();
+						console.log("A: " + eventObject.Answer + ", RA: " + player.currentQuestion.answer);
 						player.questionAnsweredCorrect = eventObject.Answer === player.currentQuestion.answer;
 					} else
 						ws.send(INT_RESPONSE_INVALID);
