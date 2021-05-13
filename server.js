@@ -398,7 +398,7 @@ app.post("/themes/edit", jsonParser, function (req, res) {
 
 app.get("/themes/info", function (req, res) {
 	if (req.query.id) {
-		getThemeInfo(id).then((theme) => {
+		getThemeInfo(req.query.id).then((theme) => {
 			res.status(200).send(theme);
 		}).catch((err) => {
 			res.status(400).send("Bad Request! Make sure you sent a valid id.");
