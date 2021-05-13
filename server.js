@@ -315,6 +315,7 @@ function getThemeQuestion(id, index) {
 					question: "2 + 2 = ?",
 					answer: 3,
 					answers: ["Хомяк", "2", "7", "4"],
+					answerType: 0,
 					timeGiven: 10
 				};
 			case 1:
@@ -322,6 +323,7 @@ function getThemeQuestion(id, index) {
 					question: "Когда появилась Земля?",
 					answer: 2,
 					answers: ["XIIв. до Н.Э.", "Вчера", "Давно", "Что такое Земля?"],
+					answerType: 0,
 					timeGiven: 15
 				};
 			case 2:
@@ -329,6 +331,7 @@ function getThemeQuestion(id, index) {
 					question: "Сколько хвостов у кота?",
 					answer: 0,
 					answers: ["1", "5", "3", "Нету"],
+					answerType: 0,
 					timeGiven: 10
 				};
 			case 3:
@@ -336,6 +339,7 @@ function getThemeQuestion(id, index) {
 					question: "Placeholder",
 					answer: 2,
 					answers: ["Hmm", "No", "Correct", "Hello"],
+					answerType: 0,
 					timeGiven: 10
 				};
 			case 4:
@@ -343,6 +347,7 @@ function getThemeQuestion(id, index) {
 					question: "В каком году хомяк схомячил еду?",
 					answer: 1,
 					answers: ["1999", "2021", "2070", "0001"],
+					answerType: 0,
 					timeGiven: 20
 				};
 			case 5:
@@ -350,6 +355,7 @@ function getThemeQuestion(id, index) {
 					question: "Как далеко северный полюс?",
 					answer: 3,
 					answers: ["5 км", "Я уже там", "-50 км", "Далеко"],
+					answerType: 0,
 					timeGiven: 10
 				};
         }
