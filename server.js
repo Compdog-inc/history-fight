@@ -358,6 +358,30 @@ function getThemeQuestion(id, index) {
 	});
 }
 
+/**
+ * Checks if auth matches theme auth
+ * @param {string} id the themes id
+ * @param {string} auth the auth to check
+ * @returns {Promise<boolean>} returns true if auth matches (promise)
+ */
+function checkThemeAuth(id, auth) {
+	return new Promise((resolve, reject) => {
+		pclient.query('SELECT * FROM public."theme-auth" WHERE id = $1', [id], (err, res) => {
+			if (err) { console.log("Error getting theme auth: " + err); reject(err); return; }
+			if (res.rows.length > 0) {
+				var a = res.rows[0].auth;
+				if (a && a === auth) {
+					resolve(true);
+				}
+				else
+					resolve(false);
+			}
+			else
+				resolve(false);
+		});
+	});
+}
+
 app.get("/themes/get", function (req, res) {
 	if (req.query.page) {
 		if (!isNaN(req.query.page)) {
@@ -389,7 +413,14 @@ app.post("/themes/create", jsonParser, function (req, res) {
 app.post("/themes/edit", jsonParser, function (req, res) {
 	if (req.body && req.body.id) {
 		if (req.body.auth) {
-			res.status(200).send("OK");
+			checkThemeAuth(req.body.id, req.body.auth).then((check) => {
+				if (check) {
+					res.status(200).send({ id: req.body.id });
+				} else
+					res.status(401).send("Unauthorized! Auth Code invalid.");
+			}).catch((err) => {
+				res.status(400).send("Bad Request! Make sure you sent a valid id.");
+			});
 		} else
 			res.status(401).send("Unauthorized! Auth Code invalid.");
 	} else
@@ -399,7 +430,10 @@ app.post("/themes/edit", jsonParser, function (req, res) {
 app.get("/themes/info", function (req, res) {
 	if (req.query.id) {
 		getThemeInfo(req.query.id).then((theme) => {
-			res.status(200).send(theme);
+			if(theme != null)
+				res.status(200).send(theme);
+			else
+				res.status(400).send("Bad Request! Make sure you sent a valid id.");
 		}).catch((err) => {
 			res.status(400).send("Bad Request! Make sure you sent a valid id.");
 		});
