@@ -380,14 +380,14 @@ app.get("/themes/get", function (req, res) {
 });
 
 app.post("/themes/create", function (req, res) {
-	if (req.body.auth) {
+	if (req.body && req.body.auth) {
 		res.status(200).send({ id: 'hom' });
 	} else
 		res.status(400).send("Bad Request! Please send a valid auth code.");
 });
 
 app.post("/themes/edit", function (req, res) {
-	if (req.body.id) {
+	if (req.body && req.body.id) {
 		if (req.body.auth) {
 			res.status(200).send("OK");
 		} else
