@@ -324,7 +324,7 @@ function getThemes(page) {
  */
 function getThemeInfo(id) {
 	return new Promise((resolve, reject) => {
-		pclient.query('SELECT * FROM public."user-themes" WHERE id = \'?\'', [id], (err, res) => {
+		pclient.query('SELECT * FROM public."user-themes" WHERE id = ?', [id], (err, res) => {
 			if (err) { console.log("Error getting theme: " + err); reject(err); return; }
 			if (res.rows.length > 0)
 				resolve(res.rows[0]);
@@ -342,7 +342,7 @@ function getThemeInfo(id) {
  */
 function getThemeQuestion(id, index) {
 	return new Promise((resolve, reject) => {
-		pclient.query('SELECT * FROM public."theme-game" WHERE id = \'?\'', [id], (err, res) => {
+		pclient.query('SELECT * FROM public."theme-game" WHERE id = ?', [id], (err, res) => {
 			if (err) { console.log("Error getting theme question: " + err); reject(err); return; }
 			if (res.rows.length > 0) {
 				var questions = res.rows[0].questions;
@@ -398,7 +398,7 @@ app.post("/themes/edit", jsonParser, function (req, res) {
 
 app.get("/themes/info", function (req, res) {
 	if (req.query.id) {
-		getThemeInfo(req.query.id).then((theme) => {
+		getThemeInfo(req.query.id.toString()).then((theme) => {
 			res.status(200).send(theme);
 		}).catch((err) => {
 			res.status(400).send("Bad Request! Make sure you sent a valid id.");
