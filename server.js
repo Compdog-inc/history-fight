@@ -89,6 +89,7 @@ class Room {
 		this.currentVoteTimeout = null;
 		this.settings = settings;
 		this.questionCount = 0;
+		this.globalTime = 0;
 	}
 
 	/**
@@ -209,6 +210,18 @@ class Room {
 
 	set questionCount(value) {
 		this._questionCount = value;
+	}
+
+	/**
+	 * The global question time in current theme
+	 * @type {Number}
+	 */
+	get globalTime() {
+		return this._globalTime;
+	}
+
+	set globalTime(value) {
+		this._globalTime = value;
 	}
 };
 
@@ -833,18 +846,17 @@ function sendNewQuestion(room) {
 					var id = room.teams[i].Players[j];
 					getThemeQuestion(room.settings.theme, randomInt(0, room.questionCount)).then((question) => {
 						var player = getPlayerById(id, room);
-						console.log("PLAYER: " + player + ", ID: " + id);
 						player.currentQuestion = {
 							question: question.question,
 							answer: question.answer,
-							timeGiven: 10,
+							timeGiven: room.globalTime,
 							timeStart: Date.now()
 						};
 						sendEvent({
 							Name: "QuestionEvent",
 							SentInfo: false,
-							TimeLeft: 10,
-							GlobalTimeLeft: 10,
+							TimeLeft: room.globalTime,
+							GlobalTimeLeft: room.globalTime,
 							Question: question.question,
 							Answers: question.answers,
 							AnswerType: question.answerType,
@@ -852,7 +864,7 @@ function sendNewQuestion(room) {
 						}, player.client, room);
 
 						if (room.currentQuestionTimeout == null)
-							room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
+							room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), room.globalTime * 1000);
 					}).catch((err) => { });
 				})();
 			}
@@ -863,7 +875,7 @@ function sendNewQuestion(room) {
 					var q = {
 						question: question.question,
 						answer: question.answer,
-						timeGiven: 10,
+						timeGiven: room.globalTime,
 						timeStart: Date.now()
 					};
 					for (var j = 0; j < room.teams[i].Players.length; j++) {
@@ -872,15 +884,15 @@ function sendNewQuestion(room) {
 						sendEvent({
 							Name: "QuestionEvent",
 							SentInfo: false,
-							TimeLeft: 10,
-							GlobalTimeLeft: 10,
+							TimeLeft: room.globalTime,
+							GlobalTimeLeft: room.globalTime,
 							Question: question.question,
 							Answers: question.answers,
 							AnswerType: question.answerType,
 							QuestionImageUrl: question.questionImageUrl
 						}, player.client, room);
 					}
-					room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
+					room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), room.globalTime * 1000);
 				}).catch((err) => { });
 			})();
 		}
@@ -1158,13 +1170,14 @@ function parseEvent(eventObject, ws, room) {
 				room.teamsAlive = room.teams.length;
 				getThemeInfo(room.settings.theme).then((theme) => {
 					room.questionCount = theme.questions;
+					room.globalTime = theme.globaltime;
 					sendToAll(eventObject, room);
 					sendToServer({ Name: "GameStartEvent", Theme: theme.display, Teams: room.teams }, room);
 					sendToServer({
 						Name: "StatsUpdateEvent",
 						Teams: room.teams
 					}, room);
-					sendNewQuestion(room);
+					setTimeout(() => sendNewQuestion(room), 3600);
 				}).catch((err) => {
 					sendToAll(eventObject, room);
 					sendToServer({ Name: "GameStartEvent", Theme: room.settings.theme, Teams: room.teams }, room);
@@ -1172,7 +1185,7 @@ function parseEvent(eventObject, ws, room) {
 						Name: "StatsUpdateEvent",
 						Teams: room.teams
 					}, room);
-					sendNewQuestion(room);
+					setTimeout(() => sendNewQuestion(room), 3600);
 				});
 			} else
 				ws.send(INT_RESPONSE_INVALID);
