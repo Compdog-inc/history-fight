@@ -18,12 +18,18 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 
-const INT_RESPONSE_OK				= "4000";	// When joining a existing room
-const INT_RESPONSE_NOT_FOUND		= "4001";	// When trying to join a non-existing room
-const INT_RESPONSE_INVALID			= "4002";	// When sending a command that is invalid at the current time
-const INT_RESPONSE_STARTED			= "4003";	// When trying to join an already started game
-const INT_RESPONSE_INTERNAL_ERROR	= "4004";	// When command caused an internal server error
-const INT_RESPONSE_ECHO				= "0";		// Debug response
+/**When joining a existing room*/
+const INT_RESPONSE_OK = "4000";
+/**When trying to join a non-existing room*/
+const INT_RESPONSE_NOT_FOUND = "4001";
+/**When sending a command that is invalid at the current time*/
+const INT_RESPONSE_INVALID = "4002";
+/**When trying to join an already started game*/
+const INT_RESPONSE_STARTED = "4003";
+/**When command caused an internal server error*/
+const INT_RESPONSE_INTERNAL_ERROR = "4004";
+/**Debug response*/
+const INT_RESPONSE_ECHO = "0";
 
 const CLOSE_REASON_UNKNOWN			= 0;
 const CLOSE_REASON_TEAM_REMOVED		= 1;
@@ -39,6 +45,159 @@ const pclient = new Client({
 	}
 });
 
+/**A team of players*/
+class Team {
+
+};
+
+/**A player*/
+class Player {
+
+};
+
+/**Settings that get sent along the GameStartEvent*/
+class RoomSettings {
+
+};
+
+/**A user theme*/
+class Theme {
+
+};
+
+/**A room that hosts a game*/
+class Room {
+
+	/**
+	 * @param {Number} code
+	 * @param {WebSocket} server
+	 * @param {RoomSettings} settings
+	 */
+	constructor(code, server, settings) {
+		this.code = code;
+		this.teams = [];
+		this.clients = [];
+		this.server = server;
+		this.teamsAlive = 0;
+		this.started = false;
+		this.currentQuestionTimeout = null;
+		this.currentVoteTimeout = null;
+		this.settings = settings;
+	}
+
+	/**
+	 * The code of the room
+	 * @type {Number}
+	 */
+	get code() {
+		return this._code;
+	}
+
+	set code(value) {
+		this._code = value;
+	}
+
+	/**
+	 * The teams in the room
+	 * @type {Team[]}
+	 */
+	get teams() {
+		return this._teams;
+	}
+
+	set teams(value) {
+		this._teams = value;
+	}
+
+	/**
+	 * The clients in the room
+	 * @type {Player[]}
+	 */
+	get clients() {
+		return this._clients;
+	}
+
+	set clients(value) {
+		this._clients = value;
+	}
+
+	/**
+	 * The server socket
+	 * @type {WebSocket}
+	 */
+	get server() {
+		return this._server;
+	}
+
+	set server(value) {
+		this._server = value;
+	}
+
+	/**
+	 * Number of teams alive in the room
+	 * @type {Number}
+	 */
+	get teamsAlive() {
+		return this._teamsAlive;
+	}
+
+	set teamsAlive(value) {
+		this._teamsAlive = value;
+	}
+
+	/**
+	 * Is the game started
+	 * @type {Boolean}
+	 */
+	get started() {
+		return this._started;
+	}
+
+	set started(value) {
+		this._started = value;
+	}
+
+	/**
+	 * The current question timeout code
+	 * @type {Number|null}
+	 */
+	get currentQuestionTimeout() {
+		return this._currentQuestionTimeout;
+	}
+
+	set currentQuestionTimeout(value) {
+		this._currentQuestionTimeout = value;
+	}
+
+	/**
+	 * The current vote timeout code
+	 * @type {Number|null}
+	 */
+	get currentVoteTimeout() {
+		return this._currentVoteTimeout;
+	}
+
+	set currentVoteTimeout(value) {
+		this._currentVoteTimeout = value;
+	}
+
+	/**
+	 * The current settings of the room
+	 * @type {RoomSettings}
+	 */
+	get settings() {
+		return this._settings;
+	}
+
+	set settings(value) {
+		this._settings = value;
+	}
+};
+
+/**
+ * The rooms
+ * @type {Room[]}
+ */
 var rooms = [];
 
 app.use(cors());
@@ -49,6 +208,12 @@ var urlencodedParser = bodyParser.urlencoded({
 	extended: false
 });
 
+/**
+ * Returns true if str ends with any of endings
+ * @param {string} str
+ * @param {string[]} endings
+ * @returns {boolean}
+ */
 function endsWith(str, endings) {
 	for (var i = 0; i < endings.length; i++) {
 		if (str.endsWith(endings[i])) {
@@ -102,8 +267,14 @@ app.get("/files/:filefolder/:filename", function (req, res) {
 	});
 });
 
+/**
+ * Gets themes array with page
+ * @param {Number} page the page to get
+ * @returns {Promise<Theme[]>} the promise that has the themes
+ */
 function getThemes(page) {
 	return new Promise((resolve, reject) => {
+		/**@type {Theme[]}*/
 		var result = [];
 		pclient.query('SELECT * FROM public."user-themes"', (err, res) => {
 			if (err) { console.log("Error getting themes: " + err); reject(err); return; }
@@ -115,6 +286,11 @@ function getThemes(page) {
 	});
 }
 
+/**
+ * Gets single theme by its id
+ * @param {string} id the id of the theme
+ * @returns {Promise<Theme|null>} the promise that has the theme
+ */
 function getThemeInfo(id) {
 	return new Promise((resolve, reject) => {
 		pclient.query("SELECT * FROM public.\"user-themes\" WHERE id = '" + id + "'", (err, res) => {
@@ -126,6 +302,11 @@ function getThemeInfo(id) {
 	});
 }
 
+/**
+ * Gets theme questions by its id
+ * @param {string} id the themes id
+ * @param {Number} index the index of the question
+ */
 function getThemeQuestion(id, index) {
 	if (id == "demo228" || true) {
 		switch (index) {
@@ -295,10 +476,19 @@ wss.on('connection', (ws, req) => {
 	});
 });
 
+/**
+ * Generates a random id
+ * @returns {string} the id
+ */
 function generateId() {
 	return uuidv4();
 }
 
+/**
+ * Generates a random number
+ * @param {Number} n the number of digits
+ * @returns {Number} the random number
+ */
 function generateNum(n) {
 	var add = 1, max = 12 - add;
 
@@ -313,10 +503,20 @@ function generateNum(n) {
 	return ("" + number).substring(add);
 }
 
+/**
+ * Generates a random number in a range
+ * @param {Number} min the min number (inclusive)
+ * @param {Number} max the max number (exclusive)
+ * @returns {Number} the random number
+ */
 function randomInt(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 }
 
+/**
+ * Generates a random room code with 6 digits
+ * @returns {Number} the room code
+ */
 function generateRoomCode() {
 	var code = generateNum(6);
 
@@ -326,6 +526,11 @@ function generateRoomCode() {
 	return code;
 }
 
+/**
+ * Returns a room with code or null if none found
+ * @param {Number} code the code of the room
+ * @returns {Room|null} the room or null if none found
+ */
 function getRoomByCode(code) {
 	for (var i = 0; i < rooms.length; i++)
 		if (rooms[i].code === code)
@@ -333,6 +538,12 @@ function getRoomByCode(code) {
 	return null;
 }
 
+/**
+ * Gets a client by its id
+ * @param {string} id the players id
+ * @param {Room} room the players room
+ * @returns {WebSocket|null} the client or null of none found
+ */
 function getClientById(id, room) {
 	if (room == null)
 		return null;
@@ -342,6 +553,12 @@ function getClientById(id, room) {
 	return null;
 }
 
+/**
+ * Gets the id of player by its client
+ * @param {WebSocket} ws the players client
+ * @param {Room} room the players room
+ * @returns {string|null} the id or null of none found
+ */
 function getIdByClient(ws, room) {
 	if (room == null)
 		return null;
@@ -351,6 +568,12 @@ function getIdByClient(ws, room) {
 	return null;
 }
 
+/**
+ * Gets the player by its id
+ * @param {string} id the players id
+ * @param {Room} room the players room
+ * @returns {Player|null} the player or null of none found
+ */
 function getPlayerById(id, room) {
 	if (room == null)
 		return null;
@@ -360,6 +583,12 @@ function getPlayerById(id, room) {
 	return null;
 }
 
+/**
+ * Gets the player by its client
+ * @param {WebSocket} ws the players client
+ * @param {Room} room the players room
+ * @returns {Player|null} the player or null of none found
+ */
 function getPlayerByClient(ws, room) {
 	if (room == null)
 		return null;
@@ -369,6 +598,12 @@ function getPlayerByClient(ws, room) {
 	return null;
 }
 
+/**
+ * Gets the player index by its id
+ * @param {string} id the players id
+ * @param {Room} room the players room
+ * @returns {Number|null} the index or null if none found
+ */
 function getPlayerIndexById(id, room) {
 	if (room == null)
 		return null;
@@ -378,6 +613,12 @@ function getPlayerIndexById(id, room) {
 	return null;
 }
 
+/**
+ * Gets the play index by its client
+ * @param {WebSocket} ws the players client
+ * @param {Room} room the players room
+ * @returns {Number|null} the index or null if none found
+ */
 function getPlayerIndexByClient(ws, room) {
 	if (room == null)
 		return null;
@@ -387,6 +628,11 @@ function getPlayerIndexByClient(ws, room) {
 	return null;
 }
 
+/**
+ * Gets the room by its server
+ * @param {WebSocket} server the rooms server
+ * @returns {Room|null} the room or null if none found
+ */
 function getRoomByServer(server) {
 	for (var i = 0; i < rooms.length; i++) {
 		if (rooms[i].server == server)
@@ -395,11 +641,22 @@ function getRoomByServer(server) {
 	return null;
 }
 
+/**
+ * Removes player by its id in a team
+ * @param {string} id the players id
+ * @param {Team} team the players team
+ */
 function removeClientIdInTeam(id, team) {
 	if (team.Players.includes(id))
 		team.Players = team.Players.filter(item => item !== id);
 }
 
+/**
+ * Gets the team by one if its clients ids
+ * @param {string} id one of the clients ids
+ * @param {Room} room the teams room
+ * @returns {Team|null} the team or null if none found
+ */
 function getTeamByClientId(id, room) {
 	if (room == null)
 		return null;
@@ -410,6 +667,12 @@ function getTeamByClientId(id, room) {
 	return null;
 }
 
+/**
+ * Gets team by its id
+ * @param {string} id the teams id
+ * @param {Room} room the teams room
+ * @returns {Team|null} the team or null if none found
+ */
 function getTeamById(id, room) {
 	if (room == null)
 		return null;
@@ -419,6 +682,11 @@ function getTeamById(id, room) {
 	return null;
 }
 
+/**
+ * Removes client from game and sends event
+ * @param {WebSocket} ws the client
+ * @param {Room} room the clients room
+ */
 function removeClient(ws, room) {
 	if (room == null)
 		return;
@@ -440,10 +708,22 @@ function removeClient(ws, room) {
 	}
 }
 
+/**
+ * Terminates the connection to player by its id
+ * @param {string} id the players id
+ * @param {Room} room the players room
+ * @param {Number} reason the reason for termination
+ */
 function terminateClient(id, room, reason) {
 	terminateClientRaw(getPlayerById(id, room), room, reason);
 }
 
+/**
+ * Terminates the connection to player and sends event
+ * @param {Player} player the player
+ * @param {Room} room the players room
+ * @param {Number} reason the reason for termination
+ */
 function terminateClientRaw(player, room, reason) {
 	if (room == null || player == null)
 		return;
@@ -460,6 +740,11 @@ function terminateClientRaw(player, room, reason) {
 		}
 }
 
+/**
+ * Removes team from game
+ * @param {string} uuid the teams id
+ * @param {Room} room the teams room
+ */
 function removeTeam(uuid, room) {
 	for (var i = 0; i < room.teams.length; i++) {
 		if (room.teams[i].Uuid === uuid) {
@@ -471,10 +756,20 @@ function removeTeam(uuid, room) {
     }
 }
 
+/**
+ * Returns true if the room is valid for starting game
+ * @param {Room} room the room
+ * @returns {Boolean} valid
+ */
 function IsRoomValid(room) {
 	return room.teams.length > 1 && room.teams.length <= room.settings.maxTeams;
 }
 
+/**
+ * Sends event to all clients in room
+ * @param {any} eventObject the event
+ * @param {Room} room the room
+ */
 function sendToAll(eventObject, room) {
 	if (room == null)
 		return;
@@ -482,6 +777,11 @@ function sendToAll(eventObject, room) {
 		sendEvent(eventObject, room.clients[i].client, room);
 }
 
+/**
+ * Sends event to all alive in room
+ * @param {any} eventObject the event
+ * @param {Room} room the room
+ */
 function sendToAllAlive(eventObject, room) {
 	if (room == null)
 		return;
@@ -489,17 +789,34 @@ function sendToAllAlive(eventObject, room) {
 		if (!room.teams[i].IsDead) sendToTeam(eventObject, room, room.teams[i]);
 }
 
+/**
+ * Sends event to server in room
+ * @param {any} eventObject the event
+ * @param {Room} room the room
+ */
 function sendToServer(eventObject, room) {
 	if (room == null)
 		return;
 	sendEvent(eventObject, room.server, room);
 }
 
+/**
+ * Sends event to all players in team
+ * @param {any} eventObject the event
+ * @param {Room} room the room
+ * @param {Team} team the team
+ */
 function sendToTeam(eventObject, room, team) {
 	for (var i = 0; i < team.Players.length; i++)
 		sendEvent(eventObject, getClientById(team.Players[i], room), room);
 }
 
+/**
+ * Sends event to client
+ * @param {any} eventObject the event
+ * @param {WebSocket} ws the client
+ * @param {Room} room the room
+ */
 function sendEvent(eventObject, ws, room) {
 	var str = JSON.stringify(eventObject);
 	ws.send(str);
@@ -510,6 +827,10 @@ function sendEvent(eventObject, ws, room) {
 		console.log("Sent to " + id);
 }
 
+/**
+ * Sends a new question to a room
+ * @param {Room} room the room
+ */
 function sendNewQuestion(room) {
 	// Reset prev round
 	for (var i = 0; i < room.teams.length; i++) {
@@ -560,11 +881,24 @@ function sendNewQuestion(room) {
 	room.currentQuestionTimeout = setTimeout(() => questionTimeUp(room), 10 * 1000);
 }
 
+/**
+ * Calculates the points for a team
+ * @param {Number} timeSpent the time spent answering
+ * @param {Number} timeGiven the time given for question
+ * @param {Number} min the min points
+ * @param {Number} max the max points
+ * @returns {Number} the points
+ */
 function calcPoints(timeSpent, timeGiven, min, max) {
 	return (1 - timeSpent / timeGiven) * (max - min) + min;
 }
 
+/**
+ * Gets called when question time is up
+ * @param {Room} room the current room
+ */
 function questionTimeUp(room) {
+	/**@type {Player[]}*/
 	var correctPlayers = [];
 	for (var i = 0; i < room.clients.length; i++) {
 		var client = room.clients[i];
@@ -593,6 +927,12 @@ function questionTimeUp(room) {
 	room.currentVoteTimeout = setTimeout(() => randomVoting(room, correctPlayers), 3000);
 }
 
+/**
+ * Gets a random alive team and ignores an id
+ * @param {Room} room the room
+ * @param {string} ignoreTeamId the team id to ignore
+ * @returns {Team|null} the team or null if none found / all dead
+ */
 function getRandomTeam(room, ignoreTeamId) {
 	if (room.teamsAlive > 0) {
 		var teamIndex = randomInt(0, room.teams.length);
@@ -603,6 +943,11 @@ function getRandomTeam(room, ignoreTeamId) {
 		return null;
 }
 
+/**
+ * Does random voting
+ * @param {Room} room the room
+ * @param {Player[]} correctPlayers the players that answered correctly
+ */
 function randomVoting(room, correctPlayers) {
 	var teamsKilled = 0;
 	var teamsAttacked = 0;
@@ -695,6 +1040,10 @@ function randomVoting(room, correctPlayers) {
 	else setTimeout(() => endGame(room), 3000);
 }
 
+/**
+ * Ends the game
+ * @param {Room} room the room
+ */
 function endGame(room) {
 	var winners = ["?", "?", "?"];
 
@@ -727,6 +1076,13 @@ function endGame(room) {
     }
 }
 
+/**
+ * Does event parsing logic
+ * @param {Object} eventObject the event
+ * @param {string} eventObject.Name the event name
+ * @param {WebSocket} ws the sender
+ * @param {Room} room the current room
+ */
 function parseEvent(eventObject, ws, room) {
 	console.log("Got " + eventObject.Name);
 	switch (eventObject.Name) {
@@ -749,18 +1105,7 @@ function parseEvent(eventObject, ws, room) {
 			break;
 		case "NewRoomEvent":
 			if (eventObject.settings.theme != "") {
-				var rmCode = generateRoomCode();
-				room = {
-					code: rmCode,
-					teams: [],
-					clients: [],
-					server: ws,
-					teamsAlive: 0,
-					started: false,
-					currentQuestionTimeout: null,
-					currentVoteTimeout: null,
-					settings: eventObject.settings
-				};
+				var room = new Room(generateRoomCode(), ws, eventObject.settings);
 				ws.on('message', (message) => {
 					try {
 						var eventObject = JSON.parse(message);
