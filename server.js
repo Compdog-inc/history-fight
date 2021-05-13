@@ -379,14 +379,14 @@ app.get("/themes/get", function (req, res) {
 		res.status(400).send("Bad Request! Make sure you have 'page' in url.");
 });
 
-app.post("/themes/create", function (req, res) {
+app.post("/themes/create", jsonParser, function (req, res) {
 	if (req.body && req.body.auth) {
 		res.status(200).send({ id: 'hom' });
 	} else
 		res.status(400).send("Bad Request! Please send a valid auth code.");
 });
 
-app.post("/themes/edit", function (req, res) {
+app.post("/themes/edit", jsonParser, function (req, res) {
 	if (req.body && req.body.id) {
 		if (req.body.auth) {
 			res.status(200).send("OK");
