@@ -12,6 +12,8 @@
  *		checkThemeAuth(id, auth)
  *		themeExists(id)
  *		insertTheme(theme, questions, auth)
+ *		editTheme(theme, questions)
+ *		setViews(id, views)
  *		generateId()
  *		generateThemeId()
  *		generateNum(n)
@@ -251,6 +253,22 @@ class Team {
 
 	set CorrectPlayers(value) {
 		this._CorrectPlayers = value;
+	}
+
+	toJSON() {
+		return {
+			Uuid: this.Uuid,
+			Name: this.Name,
+			CurrentMemberCount: this.CurrentMemberCount,
+			TotalMemberCount: this.TotalMemberCount,
+			Players: this.Players,
+			HP: this.HP,
+			BeforeHealth: this.BeforeHealth,
+			XP: this.XP,
+			Rank: this.Rank,
+			IsDead: this.IsDead,
+			CorrectPlayers: this.CorrectPlayers
+		};
 	}
 };
 
@@ -1852,7 +1870,7 @@ function parseEvent(eventObject, ws, room) {
 					if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
 				room.teamsAlive = room.teams.length;
 				getThemeInfo(room.settings.theme).then((theme) => {
-					setViews(theme.id, theme.views + 1);
+					setViews(theme.id, theme.views + 1.0);
 					room.questionCount = theme.questions;
 					room.globalTime = theme.globaltime;
 					sendToAll(eventObject, room);
