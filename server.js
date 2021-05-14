@@ -794,7 +794,7 @@ function getThemes(page) {
 		pclient.query('SELECT * FROM public."user-themes"', (err, res) => {
 			if (err) { console.log("Error getting themes: " + err); reject(err); return; }
 			for (let row of res.rows) {
-				result.push(new Theme(row.id, row.display, row.description, row.modtime, row.views, row.rating, row.questions, row.globaltime));
+				result.push(row);
 			}
 			resolve(result);
 		});
@@ -812,7 +812,7 @@ function getThemeInfo(id) {
 			if (err) { console.log("Error getting theme: " + err); reject(err); return; }
 			if (res.rows.length > 0) {
 				var row = res.rows[0];
-				resolve(new Theme(row.id, row.display, row.description, row.modtime, row.views, row.rating, row.questions, row.globaltime));
+				resolve(row);
 			}
 			else
 				resolve(null);
