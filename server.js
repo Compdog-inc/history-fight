@@ -382,6 +382,17 @@ class Player {
 	set questionAnsweredCorrect(value) {
 		this._questionAnsweredCorrect = value;
 	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			inTeam: this.inTeam,
+			shouldClose: this.shouldClose,
+			currentQuestion: this.currentQuestion,
+			questionAnsweredTime: this.questionAnsweredTime,
+			questionAnsweredCorrect: this.questionAnsweredCorrect
+		};
+    }
 };
 
 /**Settings that get sent along the GameStartEvent*/
@@ -445,6 +456,16 @@ class RoomSettings {
 	set randomizeQuestionsInsideTeam(value) {
 		this._randomizeQuestionsInsideTeam = value;
 	}
+
+	toJSON() {
+		return {
+			theme: this.theme,
+			maxPlayers: this.maxPlayers,
+			maxTeams: this.maxTeams,
+			maxTeamHP: this.maxTeamHP,
+			randomizeQuestionsInsideTeam: this.randomizeQuestionsInsideTeam
+		};
+    }
 };
 
 /**A user theme*/
@@ -565,6 +586,19 @@ class Theme {
 	set globaltime(value) {
 		this._globaltime = value;
 	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			display: this.display,
+			description: this.description,
+			modtime: this.modtime,
+			views: this.views,
+			rating: this.rating,
+			questions: this.questions,
+			globaltime: this.globaltime
+		};
+    }
 };
 
 /**A user theme question*/
@@ -725,6 +759,19 @@ class Room {
 	set globalTime(value) {
 		this._globalTime = value;
 	}
+
+	toJSON() {
+		return {
+			code: this.code,
+			teams: this.teams,
+			clients: this.clients,
+			teamsAlive: this.teamsAlive,
+			started: this.started,
+			settings: this.settings,
+			questionCount: this.questionCount,
+			globalTime: this.globalTime
+		};
+    }
 };
 
 /**
