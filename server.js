@@ -1090,7 +1090,7 @@ function generateThemeId() {
 
 	var result = "";
 	for (var i = 0; i < 11; i++) {
-		result += charset.charAt(i);
+		result += charset.charAt(randomInt(0, charset.length));
 	}
 
 	return new Promise((resolve, reject) => {
