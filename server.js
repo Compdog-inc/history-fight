@@ -904,6 +904,36 @@ function insertTheme(theme, questions, auth) {
 	});
 }
 
+/**
+ * Edits a theme
+ * @param {Theme} newTheme
+ * @param {ThemeQuestion[]} questions
+ * @returns {Promise} the promise
+ */
+function editTheme(theme, questions) {
+	return new Promise((resolve, reject) => {
+		pclient.query('UPDATE public."user-themes" SET display=$1,description=$2,modtime=$3,questions=$4,globaltime=$5 WHERE id=$6', [theme.display, theme.description, theme.modtime, theme.questions, theme.globaltime, theme.id], (err, res) => {
+			if (err) { console.log("Error editing theme: " + err); reject(err); return; }
+			resolve();
+		});
+	});
+}
+
+/**
+ * Sets views of theme
+ * @param {string} id
+ * @param {number} views
+ * @returns {Promise} the promise
+ */
+function setViews(id, views) {
+	return new Promise((resolve, reject) => {
+		pclient.query('UPDATE public."user-themes" SET views=$1 WHERE id=$2', [views, id], (err, res) => {
+			if (err) { console.log("Error editing views: " + err); reject(err); return; }
+			resolve();
+		});
+	});
+}
+
 app.get("/themes/get", function (req, res) {
 	if (req.query.page) {
 		if (!isNaN(req.query.page)) {
@@ -948,7 +978,40 @@ app.post("/themes/edit", jsonParser, function (req, res) {
 		if (req.body.auth) {
 			checkThemeAuth(req.body.id, req.body.auth).then((check) => {
 				if (check) {
-					res.status(200).send({ id: req.body.id });
+					getThemeInfo(req.body.id).then((theme) => {
+						var newTheme = new Theme(theme.id, theme.display, theme.description, Date.now(), theme.views, theme.rating, theme.questions, theme.globaltime);
+
+						// Update new info
+						if (req.body.display) newTheme.display = req.body.display;
+						if (req.body.description) newTheme.description = req.body.description;
+						if (req.body.questions) newTheme.questions = req.body.questions;
+						if (req.body.globaltime) newTheme.globaltime = req.body.globaltime;
+
+						editTheme(newTheme, []).then(() => {
+							res.status(200).send({ id: req.body.id });
+						}).catch(() => {
+							res.status(400).send("Bad Request! Make sure you sent a valid id.");
+						});
+					}).catch((err) => {
+						res.status(400).send("Bad Request! Make sure you sent a valid id.");
+					});
+				} else
+					res.status(401).send("Unauthorized! Auth Code invalid.");
+			}).catch((err) => {
+				res.status(400).send("Bad Request! Make sure you sent a valid id.");
+			});
+		} else
+			res.status(401).send("Unauthorized! Auth Code invalid.");
+	} else
+		res.status(400).send("Bad Request! Make sure you sent a valid id.");
+});
+
+app.post("/themes/delete", jsonParser, function (req, res) {
+	if (req.body && req.body.id) {
+		if (req.body.auth) {
+			checkThemeAuth(req.body.id, req.body.auth).then((check) => {
+				if (check) {
+					res.status(200).send("OK");
 				} else
 					res.status(401).send("Unauthorized! Auth Code invalid.");
 			}).catch((err) => {
