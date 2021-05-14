@@ -1,4 +1,53 @@
-﻿process.on("uncaughtException", (e) => {
+﻿/*
+ *	Main server code for History Fight
+ *	Made by homvp#5552
+ *	Started doing server: Feb 5 2021
+ *	Last edit: May 14 2021
+ *	
+ *	Functions:
+ *		endsWith(str, endings)
+ *		getThemes(page)
+ *		getThemeInfo(id)
+ *		getThemeQuestion(id, index)
+ *		checkThemeAuth(id, auth)
+ *		themeExists(id)
+ *		insertTheme(theme, questions, auth)
+ *		generateId()
+ *		generateThemeId()
+ *		generateNum(n)
+ *		randomInt(min, max)
+ *		generateRoomCode()
+ *		getRoomByCode(code)
+ *		getClientById(id, room)
+ *		getIdByClient(ws, room)
+ *		getPlayerById(id, room)
+ *		getPlayerByClient(ws, room)
+ *		getPlayerIndexById(id, room)
+ *		getPlayerIndexByClient(ws, room)
+ *		getRoomByServer(server)
+ *		removeClientIdInTeam(id, team)
+ *		getTeamByClientId(id, room)
+ *		getTeamById(id, room)
+ *		removeClient(ws, room)
+ *		terminateClient(id, room, reason)
+ *		terminateClientRaw(player, room, reason)
+ *		removeTeam(uuid, room)
+ *		IsRoomValid(room)
+ *		sendToAll(eventObject, room)
+ *		sendToAllAlive(eventObject, room)
+ *		sendToServer(eventObject, room)
+ *		sendToTeam(eventObject, room, team)
+ *		sendEvent(eventObject, ws, room)
+ *		sendNewQuestion(room)
+ *		calcPoints(timeSpent, timeGiven, min, max)
+ *		questionTimeUp(room)
+ *		getRandomTeam(room, ignoreTeamId)
+ *		randomVoting(room, correctPlayers)
+ *		endGame(room)
+ *		parseEvent(eventObject, ws, room)
+ */
+
+process.on("uncaughtException", (e) => {
 	console.log("Error: " + e.stack);
 });
 
@@ -20,14 +69,19 @@ const path = require('path');
 
 /**When joining a existing room*/
 const INT_RESPONSE_OK = "4000";
+
 /**When trying to join a non-existing room*/
 const INT_RESPONSE_NOT_FOUND = "4001";
+
 /**When sending a command that is invalid at the current time*/
 const INT_RESPONSE_INVALID = "4002";
+
 /**When trying to join an already started game*/
 const INT_RESPONSE_STARTED = "4003";
+
 /**When command caused an internal server error*/
 const INT_RESPONSE_INTERNAL_ERROR = "4004";
+
 /**Debug response*/
 const INT_RESPONSE_ECHO = "0";
 
@@ -47,22 +101,452 @@ const pclient = new Client({
 
 /**A team of players*/
 class Team {
+	/**
+	 * @param {string} uuid
+	 * @param {string} name
+	 * @param {number} maxPlayers
+	 * @param {number} maxHp
+	 */
+	constructor(uuid, name, maxPlayers, maxHp) {
+		this.Uuid = uuid;
+		this.Name = name;
+		this.CurrentMemberCount = 0;
+		this.TotalMemberCount = maxPlayers;
+		this.Players = [];
+		this.HP = maxHp;
+		this.BeforeHealth = maxHp;
+		this.XP = 0;
+		this.Rank = -1;
+		this.IsDead = false;
+		this.CorrectPlayers = 0;
+	}
 
+	/**
+	 * The uuid of the team
+	 * @type {string}
+	 */
+	get Uuid() {
+		return this._Uuid;
+	}
+
+	set Uuid(value) {
+		this._Uuid = value;
+	}
+
+	/**
+	 * The name of the team
+	 * @type {string}
+	 */
+	get Name() {
+		return this._Name;
+	}
+
+	set Name(value) {
+		this._Name = value;
+	}
+
+	/**
+	 * The current amount of players in this team
+	 * @type {number}
+	 */
+	get CurrentMemberCount() {
+		return this._CurrentMemberCount;
+	}
+
+	set CurrentMemberCount(value) {
+		this._CurrentMemberCount = value;
+	}
+
+	/**
+	 * The total amount of players allowed in this team
+	 * @type {number}
+	 */
+	get TotalMemberCount() {
+		return this._TotalMemberCount;
+	}
+
+	set TotalMemberCount(value) {
+		this._TotalMemberCount = value;
+	}
+
+	/**
+	 * The player ids in this team
+	 * @type {string[]}
+	 */
+	get Players() {
+		return this._Players;
+	}
+
+	set Players(value) {
+		this._Players = value;
+	}
+
+	/**
+	 * The hp of this team
+	 * @type {number}
+	 */
+	get HP() {
+		return this._HP;
+	}
+
+	set HP(value) {
+		this._HP = value;
+	}
+
+	/**
+	 * The hp of this team before round
+	 * @type {number}
+	 */
+	get BeforeHealth() {
+		return this._BeforeHealth;
+	}
+
+	set BeforeHealth(value) {
+		this._BeforeHealth = value;
+	}
+
+	/**
+	 * The xp of this team
+	 * @type {number}
+	 */
+	get XP() {
+		return this._XP;
+	}
+
+	set XP(value) {
+		this._XP = value;
+	}
+
+	/**
+	 * The rank of this team
+	 * @type {number}
+	 */
+	get Rank() {
+		return this._Rank;
+	}
+
+	set Rank(value) {
+		this._Rank = value;
+	}
+
+	/**
+	 * Is the team dead
+	 * @type {boolean}
+	 */
+	get IsDead() {
+		return this._IsDead;
+	}
+
+	set IsDead(value) {
+		this._IsDead = value;
+	}
+
+	/**
+	 * The amount of players that answered correctly in this team this round
+	 * @type {number}
+	 */
+	get CorrectPlayers() {
+		return this._CorrectPlayers;
+	}
+
+	set CorrectPlayers(value) {
+		this._CorrectPlayers = value;
+	}
 };
 
 /**A player*/
 class Player {
+	/**
+	 * @param {WebSocket} client
+	 * @param {string} id
+	 */
+	constructor(client, id) {
+		this.client = client;
+		this.id = id;
+		this.inTeam = false;
+		this.shouldClose = false;
+		this.questionAnsweredTime = 0;
+		this.questionAnsweredCorrect = false;
+	}
 
+	/**
+	 * The websocket
+	 * @type {WebSocket}
+	 */
+	get client() {
+		return this._client;
+	}
+
+	set client(value) {
+		this._client = value;
+	}
+
+	/**
+	 * The id of the player
+	 * @type {string}
+	 */
+	get id() {
+		return this._id;
+	}
+
+	set id(value) {
+		this._id = value;
+	}
+
+	/**
+	 * Is the player in a team
+	 * @type {boolean}
+	 */
+	get inTeam() {
+		return this._inTeam;
+	}
+
+	set inTeam(value) {
+		this._inTeam = value;
+	}
+
+	/**
+	 * Should the connection terminate on echo response
+	 * @type {boolean}
+	 */
+	get shouldClose() {
+		return this._shouldClose;
+	}
+
+	set shouldClose(value) {
+		this._shouldClose = value;
+	}
+
+	/**
+	 * Should the connection terminate on echo response
+	 * @type {boolean}
+	 */
+	get shouldClose() {
+		return this._shouldClose;
+	}
+
+	set shouldClose(value) {
+		this._shouldClose = value;
+	}
+
+	/**
+	 * The current question
+	 * @type {Object|null}
+	 */
+	get currentQuestion() {
+		return this._currentQuestion;
+	}
+
+	set currentQuestion(value) {
+		this._currentQuestion = value;
+	}
+
+	/**
+	 * The time of answer
+	 * @type {number}
+	 */
+	get questionAnsweredTime() {
+		return this._questionAnsweredTime;
+	}
+
+	set questionAnsweredTime(value) {
+		this._questionAnsweredTime = value;
+	}
+
+	/**
+	 * Is correct answer
+	 * @type {boolean}
+	 */
+	get questionAnsweredCorrect() {
+		return this._questionAnsweredCorrect;
+	}
+
+	set questionAnsweredCorrect(value) {
+		this._questionAnsweredCorrect = value;
+	}
 };
 
 /**Settings that get sent along the GameStartEvent*/
 class RoomSettings {
+	/**
+	 * The current theme id
+	 * @type {string}
+	 */
+	get theme() {
+		return this._theme;
+	}
 
+	set theme(value) {
+		this._theme = value;
+	}
+
+	/**
+	 * Max players in team
+	 * @type {number}
+	 */
+	get maxPlayers() {
+		return this._maxPlayers;
+	}
+
+	set maxPlayers(value) {
+		this._maxPlayers = value;
+	}
+
+	/**
+	 * Max teams in room
+	 * @type {number}
+	 */
+	get maxTeams() {
+		return this._maxTeams;
+	}
+
+	set maxTeams(value) {
+		this._maxTeams = value;
+	}
+
+	/**
+	 * Max team hp
+	 * @type {number}
+	 */
+	get maxTeamHP() {
+		return this._maxTeamHP;
+	}
+
+	set maxTeamHP(value) {
+		this._maxTeamHP = value;
+	}
+
+	/**
+	 * Send random questions inside team
+	 * @type {boolean}
+	 */
+	get randomizeQuestionsInsideTeam() {
+		return this._randomizeQuestionsInsideTeam;
+	}
+
+	set randomizeQuestionsInsideTeam(value) {
+		this._randomizeQuestionsInsideTeam = value;
+	}
 };
 
 /**A user theme*/
 class Theme {
+	/**
+	 * @param {string} id
+	 * @param {string} display
+	 * @param {string} description
+	 * @param {number} modtime
+	 * @param {number} views
+	 * @param {number} rating
+	 * @param {number} questions
+	 * @param {number} globaltime
+	 */
+	constructor(id, display, description, modtime, views, rating, questions, globaltime) {
+		this.id = id;
+		this.display = display;
+		this.description = description;
+		this.modtime = modtime;
+		this.views = views;
+		this.rating = rating;
+		this.questions = questions;
+		this.globaltime = globaltime;
+	}
 
+	/**
+	 * The theme id
+	 * @type {string}
+	 */
+	get id() {
+		return this._id;
+	}
+
+	set id(value) {
+		this._id = value;
+	}
+
+	/**
+	 * The display name of the theme
+	 * @type {string}
+	 */
+	get display() {
+		return this._display;
+	}
+
+	set display(value) {
+		this._display = value;
+	}
+
+	/**
+	 * The description of the theme
+	 * @type {string}
+	 */
+	get description() {
+		return this._description;
+	}
+
+	set description(value) {
+		this._description = value;
+	}
+
+	/**
+	 * The last edit time
+	 * @type {number}
+	 */
+	get modtime() {
+		return this._modtime;
+	}
+
+	set modtime(value) {
+		this._modtime = value;
+	}
+
+	/**
+	 * The number of played games with this theme
+	 * @type {number}
+	 */
+	get views() {
+		return this._views;
+	}
+
+	set views(value) {
+		this._views = value;
+	}
+
+	/**
+	 * The rating (0-5) of the theme
+	 * @type {number}
+	 */
+	get rating() {
+		return this._rating;
+	}
+
+	set rating(value) {
+		this._rating = value;
+	}
+
+	/**
+	 * The number of questions in theme
+	 * @type {number}
+	 */
+	get questions() {
+		return this._questions;
+	}
+
+	set questions(value) {
+		this._questions = value;
+	}
+
+	/**
+	 * The global time for question (seconds)
+	 * @type {number}
+	 */
+	get globaltime() {
+		return this._globaltime;
+	}
+
+	set globaltime(value) {
+		this._globaltime = value;
+	}
 };
 
 /**A user theme question*/
@@ -310,7 +794,7 @@ function getThemes(page) {
 		pclient.query('SELECT * FROM public."user-themes"', (err, res) => {
 			if (err) { console.log("Error getting themes: " + err); reject(err); return; }
 			for (let row of res.rows) {
-				result.push(row);
+				result.push(new Theme(row.id, row.display, row.description, row.modtime, row.views, row.rating, row.questions, row.globaltime));
 			}
 			resolve(result);
 		});
@@ -326,8 +810,10 @@ function getThemeInfo(id) {
 	return new Promise((resolve, reject) => {
 		pclient.query('SELECT * FROM public."user-themes" WHERE id = $1', [id], (err, res) => {
 			if (err) { console.log("Error getting theme: " + err); reject(err); return; }
-			if (res.rows.length > 0)
-				resolve(res.rows[0]);
+			if (res.rows.length > 0) {
+				var row = res.rows[0];
+				resolve(new Theme(row.id, row.display, row.description, row.modtime, row.views, row.rating, row.questions, row.globaltime));
+			}
 			else
 				resolve(null);
 		});
@@ -383,6 +869,23 @@ function checkThemeAuth(id, auth) {
 }
 
 /**
+ * Checks if theme exists
+ * @param {string} id the themes id
+ * @returns {Promise<boolean>} returns true if theme exists (promise)
+ */
+function themeExists(id) {
+	return new Promise((resolve, reject) => {
+		pclient.query('SELECT * FROM public."user-themes" WHERE id = $1', [id], (err, res) => {
+			if (err) { console.log("Error checking theme: " + err); reject(err); return; }
+			if (res.rows.length > 0)
+				resolve(true);
+			else
+				resolve(false);
+		});
+	});
+}
+
+/**
  * Inserts a theme
  * @param {Theme} theme
  * @param {ThemeQuestion[]} questions
@@ -391,8 +894,13 @@ function checkThemeAuth(id, auth) {
  */
 function insertTheme(theme, questions, auth) {
 	return new Promise((resolve, reject) => {
-		// Placeholder
-		resolve();
+		pclient.query('INSERT INTO public."user-themes" VALUES($1,$2,$3,$4,$5,$6,$7,$8)', [theme.id, theme.display, theme.description, theme.modtime, theme.views, theme.rating, theme.questions, theme.globaltime], (err, res) => {
+			if (err) { console.log("Error inserting theme: " + err); reject(err); return; }
+			pclient.query('INSERT INTO public."theme-auth" VALUES($1,$2)', [theme.id, auth], (err, res) => {
+				if (err) { console.log("Error inserting theme auth: " + err); reject(err); return; }
+				resolve();
+			});
+		});
 	});
 }
 
@@ -419,11 +927,18 @@ app.get("/themes/get", function (req, res) {
 
 app.post("/themes/create", jsonParser, function (req, res) {
 	if (req.body && req.body.auth) {
-		insertTheme({}, [], req.body.auth).then(() => {
-			res.status(200).send({ id: 'hom' });
-		}).catch(() => {
-			res.status(500).send("Internal Server Error! (Check the logs)");
-		});
+		if (req.body.display && req.body.description && req.body.questions && req.body.globaltime) {
+			generateThemeId().then((themeId) => {
+				insertTheme(new Theme(themeId, req.body.display, req.body.description, Date.now(), 0, 0, req.body.questions, req.body.globaltime), [], req.body.auth).then(() => {
+					res.status(200).send({ id: themeId });
+				}).catch(() => {
+					res.status(500).send("Internal Server Error! (Check the logs)");
+				});
+			}).catch(() => {
+				res.status(500).send("Internal Server Error! (Check the logs)");
+			});
+		} else
+			res.send(400).send("Bad Request! Please send valid theme.");
 	} else
 		res.status(400).send("Bad Request! Please send a valid auth code.");
 });
@@ -523,7 +1038,7 @@ wss.on('connection', (ws, req) => {
 
 		var id = generateId();
 
-		var client = { client: ws, id: id, inTeam: false, shouldClose: false, currentQuestion: null, questionAnsweredTime: 0, questionAnsweredCorrect: false };
+		var client = new Player(ws, id);
 		room.clients.push(client);
 
 		console.log(`New Connection '${id}' room '${room.code}'`);
@@ -563,6 +1078,29 @@ wss.on('connection', (ws, req) => {
  */
 function generateId() {
 	return uuidv4();
+}
+
+/**
+ * Generates a random theme id
+ * @returns {Promise<string>} the id (promise)
+ */
+function generateThemeId() {
+	/**@type {string}*/
+	var charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+
+	var result = "";
+	for (var i = 0; i < 11; i++) {
+		result += charset.charAt(i);
+	}
+
+	return new Promise((resolve, reject) => {
+		themeExists(result).then((exists) => {
+			if (exists)
+				generateThemeId().then((r) => resolve(r)).catch((err) => reject(err));
+			else
+				resolve(result);
+		}).catch((err) => { reject(err); });
+	});
 }
 
 /**
@@ -1192,7 +1730,9 @@ function parseEvent(eventObject, ws, room) {
 			var player = getPlayerByClient(ws, room);
 			if (!room.started && player != null && !player.inTeam && room.teams.length < room.settings.maxTeams) {
 				player.inTeam = true;
-				var newTeam = { Uuid: generateId(), Name: eventObject.TeamName, CurrentMemberCount: 1, TotalMemberCount: room.settings.maxPlayers, Players: [getIdByClient(ws, room)], HP: room.settings.maxTeamHP, BeforeHealth: room.settings.maxTeamHP, XP: 0, Rank: 0, IsDead: false, CorrectPlayers: 0 };
+				var newTeam = new Team(generateId(), eventObject.TeamName, room.settings.maxPlayers, room.settings.maxTeamHP);
+				newTeam.CurrentMemberCount = 1;
+				newTeam.Players.push(getIdByClient(ws, room));
 				room.teams.push(newTeam);
 				var ev = { Name: "NewTeamEvent", Team: newTeam, MaxTeams: room.settings.maxTeams };
 				sendToAll(ev, room);
