@@ -1700,7 +1700,7 @@ function questionTimeUp(room) {
 			}
 			correctPlayers.push(client);
 		}
-		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, TimeLeft: 3 };
+		var event = { Name: "QuestionEvent", SentInfo: true, IsCorrect: client.questionAnsweredCorrect, /*TimeLeft: 3*/ };
 		sendEvent(event, client.client, room);
 		client.questionAnsweredTime = 0;
 		client.questionAnsweredCorrect = false;
