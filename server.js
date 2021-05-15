@@ -985,6 +985,23 @@ function editTheme(theme, questions) {
 }
 
 /**
+ * Deletes a theme
+ * @param {string} id
+ * @returns {Promise} the promise
+ */
+function deleteTheme(id) {
+	return new Promise((resolve, reject) => {
+		pclient.query('DELETE FROM public."user-themes" WHERE id=$1', [id], (err, res) => {
+			if (err) { console.log("Error deleting theme: " + err); reject(err); return; }
+			pclient.query('DELETE FROM public."theme-auth" WHERE id=$1', [id], (err, res) => {
+				if (err) { console.log("Error deleting theme auth: " + err); reject(err); return; }
+				resolve();
+			});
+		});
+	});
+}
+
+/**
  * Sets views of theme
  * @param {string} id
  * @param {number} views
@@ -1076,7 +1093,11 @@ app.post("/themes/delete", jsonParser, function (req, res) {
 		if (req.body.auth) {
 			checkThemeAuth(req.body.id, req.body.auth).then((check) => {
 				if (check) {
-					res.status(200).send("OK");
+					deleteTheme(req.body.id).then(() => {
+						res.status(200).send("OK");
+					}).catch(() => {
+						res.status(500).send("Internal Server Error! (Check the logs)");
+					});
 				} else
 					res.status(401).send("Unauthorized! Auth Code invalid.");
 			}).catch((err) => {
