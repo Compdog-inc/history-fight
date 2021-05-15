@@ -2,7 +2,7 @@
  *	Main server code for History Fight
  *	Made by homvp#5552
  *	Started doing server: Feb 5 2021
- *	Last edit: May 14 2021
+ *	Last edit: May 15 2021
  *	
  *	Functions:
  *		endsWith(str, endings)
@@ -13,6 +13,7 @@
  *		themeExists(id)
  *		insertTheme(theme, questions, auth)
  *		editTheme(theme, questions)
+ *		deleteTheme(id)
  *		setViews(id, views)
  *		generateId()
  *		generateThemeId()
