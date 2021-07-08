@@ -783,6 +783,7 @@ var rooms = [];
 
 app.use(cors());
 app.set('trust proxy', true);
+app.set('etag', false);
 
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({
@@ -1064,6 +1065,7 @@ app.get("/themes/get", function(req, res) {
                 var pageCount = 0;
                 if (page <= pageCount) {
                     getThemes(page).then((themes) => {
+                        res.set('Cache-Control', 'no-store');
                         res.status(200).send({ page: page, end: page == pageCount, themes: themes });
                     }).catch((err) => {
                         res.status(500).send("Internal Server Error! (Check the logs)");
