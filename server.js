@@ -1084,6 +1084,7 @@ app.post("/themes/create", jsonParser, function(req, res) {
         if (req.body.display && req.body.description && req.body.questions && req.body.globaltime) {
             generateThemeId().then((themeId) => {
                 insertTheme(new Theme(themeId, req.body.display, req.body.description, Date.now(), 0, 0, req.body.questions, req.body.globaltime), [], req.body.auth).then(() => {
+                    res.set('Cache-Control', 'no-store');
                     res.status(200).send({ id: themeId });
                 }).catch(() => {
                     res.status(500).send("Internal Server Error! (Check the logs)");
@@ -1112,6 +1113,7 @@ app.post("/themes/edit", jsonParser, function(req, res) {
                         if (req.body.globaltime) newTheme.globaltime = req.body.globaltime;
 
                         editTheme(newTheme, []).then(() => {
+                            res.set('Cache-Control', 'no-store');
                             res.status(200).send({ id: req.body.id });
                         }).catch(() => {
                             res.status(400).send("Bad Request! Make sure you sent a valid id.");
@@ -1136,6 +1138,7 @@ app.post("/themes/delete", jsonParser, function(req, res) {
             checkThemeAuth(req.body.id, req.body.auth).then((check) => {
                 if (check) {
                     deleteTheme(req.body.id).then(() => {
+                        res.set('Cache-Control', 'no-store');
                         res.status(200).send("OK");
                     }).catch(() => {
                         res.status(500).send("Internal Server Error! (Check the logs)");
@@ -1154,8 +1157,10 @@ app.post("/themes/delete", jsonParser, function(req, res) {
 app.get("/themes/info", function(req, res) {
     if (req.query.id) {
         getThemeInfo(req.query.id).then((theme) => {
-            if (theme != null)
+            if (theme != null) {
+                res.set('Cache-Control', 'no-store');
                 res.status(200).send(theme);
+            }
             else
                 res.status(400).send("Bad Request! Make sure you sent a valid id.");
         }).catch((err) => {
