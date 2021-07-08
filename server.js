@@ -1090,7 +1090,7 @@ app.post("/themes/create", jsonParser, function(req, res) {
                 res.status(500).send("Internal Server Error! (Check the logs)");
             });
         } else
-            res.send(400).send("Bad Request! Please send valid theme.");
+            res.status(400).send("Bad Request! Please send valid theme.");
     } else
         res.status(400).send("Bad Request! Please send a valid auth code.");
 });
