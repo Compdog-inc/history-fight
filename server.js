@@ -1986,7 +1986,7 @@ function parseEvent(eventObject, ws, room) {
                     if (!room.clients[i].inTeam) terminateClientRaw(room.clients[i], room, CLOSE_REASON_GAME_STARTED);
                 room.teamsAlive = room.teams.length;
                 getThemeInfo(room.settings.theme).then((theme) => {
-                    setViews(theme.id, theme.views + 1.0);
+                    setViews(theme.id, Number(theme.views) + Number(1));
                     room.questionCount = theme.questions;
                     room.globalTime = theme.globaltime;
                     sendToAll(eventObject, room);
